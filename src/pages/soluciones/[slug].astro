@@ -1,0 +1,174 @@
+---
+import Base from '../../layouts/Base.astro';
+import PageHero from '../../components/PageHero.astro';
+import SectionHead from '../../components/SectionHead.astro';
+import Steps from '../../components/Steps.astro';
+import ValueChain from '../../components/ValueChain.astro';
+import Stat from '../../components/Stat.astro';
+import CaseCard from '../../components/CaseCard.astro';
+import SolutionCard from '../../components/SolutionCard.astro';
+import FAQ from '../../components/FAQ.astro';
+import CtaBand from '../../components/CtaBand.astro';
+import Evidence from '../../components/Evidence.astro';
+import Icon from '../../components/Icon.astro';
+import { solutions } from '../../data/solutions';
+import { sectors } from '../../data/sectors';
+import { cases } from '../../data/cases';
+import { site } from '../../data/site';
+import type { Solution } from '../../data/types';
+
+export function getStaticPaths() {
+  return solutions.map((s) => ({ params: { slug: s.slug }, props: { s } }));
+}
+const { s } = Astro.props as { s: Solution };
+const proofCases = (s.proof?.caseSlugs ?? []).map((c) => cases.find((x) => x.slug === c)).filter((c): c is NonNullable<typeof c> => !!c);
+const related = s.related.map((r) => solutions.find((x) => x.slug === r)).filter((x): x is Solution => !!x);
+const secs = s.sectors.map((r) => sectors.find((x) => x.slug === r)).filter((x): x is NonNullable<typeof x> => !!x);
+const pw = s.problem.title.split(' ');
+const nb = Math.min(3, Math.max(2, Math.ceil(pw.length / 3)));
+const probLight = pw.slice(0, -nb).join(' ');
+const probBold = pw.slice(-nb).join(' ') + '.';
+const GROUP = { 'servicios-urbanos': 'Servicios urbanos', 'flotas-y-seguridad': 'Flotas y seguridad', transversal: 'Transversal' } as const;
+const serviceLd = {
+  '@context': 'https://schema.org', '@type': 'Service', name: s.name, serviceType: GROUP[s.group], description: s.seo.description,
+  provider: { '@id': `${site.url}/#org` }, areaServed: ['AR', 'MX', 'CO', 'CL', 'ES'], url: `${site.url}/soluciones/${s.slug}/`,
+  audience: s.forWhom.map((f) => ({ '@type': 'Audience', audienceType: f.who })),
+};
+---
+<Base title={s.seo.title} description={s.seo.description} image={s.hero.image} jsonLd={[serviceLd]}>
+  <PageHero
+    crumbs={[{ href: '/', label: 'Inicio' }, { href: '/soluciones', label: 'Soluciones' }, { label: s.name }]}
+    kicker={s.hero.kicker}
+    light={s.hero.titleLight}
+    bold={s.hero.titleBold}
+    lead={s.hero.lead}
+    image={s.hero.image}
+    imageAlt={s.hero.imageAlt}
+    cta={{ href: `#contacto`, label: 'Solicitar demo', source: `solucion-${s.slug}` }}
+    secondary={{ href: '#como-funciona', label: 'Ver cómo funciona' }}
+  />
+
+  <section class="sf-blanco who" aria-label="Para quién es">
+    <div class="wrap">
+      <p class="kicker kicker--muted">Para quién es</p>
+      <ul class="who__list" role="list">
+        {s.forWhom.map((f, i) => (
+          <li data-rv style={`--d:${i * 0.06}s`}><p class="who__q">“{f.question}”</p><p class="who__w">{f.who}</p></li>
+        ))}
+      </ul>
+    </div>
+  </section>
+
+  <section class="section prob sf-estudio" aria-labelledby="p-prob">
+    <div class="wrap prob__grid">
+      <SectionHead id="p-prob" kicker="El problema" light={probLight} bold={probBold} lead={s.problem.body} />
+      <div class="prob__costs">
+        <p class="kicker kicker--muted">Lo que cuesta mantenerlo</p>
+        <ul role="list">
+          {s.problem.costs.map((c, i) => (
+            <li class="card" data-rv style={`--d:${i * 0.07}s`}>
+              <h3 class="t-h4">{c.title}</h3>
+              <p class="t-muted t-small">{c.body}</p>
+              {c.evidence && <Evidence ev={c.evidence} />}
+            </li>
+          ))}
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <section class="section sf-blanco" id="como-funciona" aria-labelledby="p-how">
+    <div class="wrap how__grid">
+      <div class="how__head">
+        <SectionHead id="p-how" kicker="Cómo funciona" light="Así se implementa" bold="en tu operación." />
+        {s.products.length > 0 && (
+          <div class="how__prods" data-rv>
+            <p class="t-micro t-muted">Productos que intervienen</p>
+            <p>{s.products.map((p) => <span class="tag tag--v">{p}</span>)}</p>
+          </div>
+        )}
+      </div>
+      <Steps items={s.howItWorks} />
+    </div>
+  </section>
+
+  <section class="section sf-estudio" aria-labelledby="p-chain">
+    <div class="wrap">
+      <SectionHead id="p-chain" kicker="Del problema al resultado" light="Qué cambia," bold="paso a paso." lead="Cada capacidad importa por la decisión que habilita. Así se conecta la plataforma con el resultado que buscas." />
+      <div class="chain"><ValueChain items={s.chain} /></div>
+    </div>
+  </section>
+
+  <section class="section sf-blanco" aria-labelledby="p-feat">
+    <div class="wrap feat__grid">
+      <SectionHead id="p-feat" kicker="Capacidades" light="Lo que incluye" bold={s.name.toLowerCase().startsWith('movilidad') || s.name.toLowerCase().startsWith('control') ? s.name + '.' : s.name.toLowerCase() + '.'} />
+      <ul class="checks checks--2" data-rv>{s.features.map((f) => <li>{f}</li>)}</ul>
+    </div>
+  </section>
+
+  {(s.proof?.metrics?.length || proofCases.length > 0) && (
+    <section class="section sf-niebla" aria-labelledby="p-proof">
+      <div class="wrap">
+        <SectionHead id="p-proof" kicker="Evidencia" light="Lo que informan" bold="las operaciones reales." lead="Cada cifra indica quién la afirma. Los casos enlazan a su fuente." />
+        {s.proof?.metrics?.length ? (
+          <ul class="proof__stats" role="list">{s.proof.metrics.map((m, i) => <li data-rv style={`--d:${i * 0.07}s`}><Stat m={m} /></li>)}</ul>
+        ) : null}
+        {proofCases.length > 0 && (
+          <ul class="proof__cases" role="list">{proofCases.slice(0, 3).map((c, i) => <li data-rv style={`--d:${i * 0.07}s`}><CaseCard c={c} /></li>)}</ul>
+        )}
+      </div>
+    </section>
+  )}
+
+  <section class="section sf-blanco" aria-labelledby="p-faq">
+    <div class="wrap faq__grid">
+      <SectionHead id="p-faq" kicker="Preguntas frecuentes" light="Sobre" bold={s.name.toLowerCase() === s.name ? s.name : s.name.charAt(0).toLowerCase() + s.name.slice(1)} />
+      <FAQ items={s.faq} />
+    </div>
+  </section>
+
+  <section class="section--tight sf-estudio rel" aria-labelledby="p-rel">
+    <div class="wrap">
+      <div class="rel__head">
+        <h2 class="t-h3" id="p-rel">Soluciones relacionadas</h2>
+        {secs.length > 0 && <p class="rel__secs"><span class="t-micro t-muted">Sectores:</span>{secs.map((x) => <a class="tag" href={`/sectores/${x.slug}`}>{x.name}</a>)}</p>}
+      </div>
+      <ul class="rel__grid" role="list">{related.map((r) => <li><SolutionCard s={r} /></li>)}</ul>
+      <a class="link-arrow rel__all" href="/soluciones"><span>Ver todas las soluciones</span><Icon name="arrow" /></a>
+    </div>
+  </section>
+
+  <CtaBand source={`solucion-${s.slug}`} preset={{ interes: [s.slug] }} id={`demo-${s.slug}`} />
+</Base>
+
+<style>
+  .who { padding: 40px 0 56px; border-bottom: 1px solid var(--u-linea); }
+  .who__list { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 24px; margin-top: 18px; }
+  .who__list li { display: grid; gap: 10px; padding-top: 18px; border-top: 2px solid var(--u-lavanda-2); align-content: start; }
+  .who__q { font-size: 1.15rem; font-weight: 300; line-height: 1.35; color: var(--u-texto); letter-spacing: -.01em; }
+  .who__w { font-size: var(--fs-micro); font-weight: 700; color: var(--u-violeta); letter-spacing: .02em; }
+  .prob__grid { display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 7fr); gap: clamp(40px, 6vw, 96px); align-items: start; }
+  .prob__costs { display: grid; gap: 16px; }
+  .prob__costs ul { display: grid; gap: 12px; }
+  .prob__costs li { display: grid; gap: 8px; padding: 22px 24px; justify-items: start; border-left: 3px solid var(--u-violeta-claro); }
+  .how__grid { display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 7fr); gap: clamp(40px, 6vw, 96px); align-items: start; }
+  .how__head { position: sticky; top: calc(var(--nav-h) + 40px); display: grid; gap: 28px; }
+  .how__prods { display: grid; gap: 8px; }
+  .how__prods p:last-child { display: flex; flex-wrap: wrap; gap: 6px; }
+  .chain { margin-top: clamp(32px, 4vw, 56px); }
+  .feat__grid { display: grid; grid-template-columns: minmax(0, 4fr) minmax(0, 8fr); gap: clamp(40px, 6vw, 96px); align-items: start; }
+  .proof__stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 32px; margin-top: 40px; padding-bottom: 40px; border-bottom: 1px solid var(--u-linea); }
+  .proof__cases { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; margin-top: 40px; }
+  .faq__grid { display: grid; grid-template-columns: minmax(0, 4fr) minmax(0, 8fr); gap: clamp(40px, 6vw, 96px); align-items: start; }
+  .rel__head { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 16px; margin-bottom: 24px; }
+  .rel__head h2 { color: var(--u-texto); }
+  .rel__secs { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; }
+  .rel__grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; }
+  .rel__all { margin-top: 24px; }
+  @media (max-width: 1000px) {
+    .who__list, .prob__grid, .how__grid, .feat__grid, .faq__grid { grid-template-columns: 1fr; }
+    .how__head { position: static; }
+    .proof__cases, .rel__grid { grid-template-columns: 1fr 1fr; }
+  }
+  @media (max-width: 640px) { .proof__cases, .rel__grid { grid-template-columns: 1fr; } }
+</style>

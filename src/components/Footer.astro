@@ -1,0 +1,104 @@
+---
+import Logo from './Logo.astro';
+import Icon from './Icon.astro';
+import { site, offices } from '../data/site';
+import { solutionGroups, sectorGroups } from '../data/nav';
+const year = new Date().getFullYear();
+const solLinks = solutionGroups.flatMap((g) => g.links);
+const secLinks = sectorGroups.flatMap((g) => g.links);
+---
+<footer class="foot sf-tinta" aria-labelledby="foot-t">
+  <div class="wrap">
+    <div class="foot__top">
+      <div class="foot__brand">
+        <a href="/" class="foot__logo" aria-label="Urbetrack, inicio"><Logo variant="vertical" tone="blanco" animate="view" /></a>
+        <p class="foot__sig" id="foot-t">Inteligencia en tu gestión.</p>
+        <hr class="rule" />
+        <p class="t-small t-muted">Software, dispositivos IoT, IA y consultoría para servicios urbanos y flotas.</p>
+        <div class="foot__cta">
+          <a class="btn btn--demo" href="/contacto" data-cta="footer">Solicitar demo <Icon name="arrow" class="arrow" /></a>
+          <a class="btn btn--ghost" href={site.loginUrl} rel="noopener">Ingresar</a>
+        </div>
+      </div>
+      <nav class="foot__cols" aria-label="Pie de página">
+        <div>
+          <p class="foot__h">Soluciones</p>
+          <ul role="list">{solLinks.map((l) => <li><a href={l.href}>{l.label}</a></li>)}</ul>
+        </div>
+        <div>
+          <p class="foot__h">Sectores</p>
+          <ul role="list">{secLinks.map((l) => <li><a href={l.href}>{l.label}</a></li>)}</ul>
+        </div>
+        <div>
+          <p class="foot__h">Empresa</p>
+          <ul role="list">
+            <li><a href="/plataforma">Plataforma</a></li>
+            <li><a href="/casos">Casos</a></li>
+            <li><a href="/empresa">Quiénes somos</a></li>
+            <li><a href="/recursos/blog">Blog</a></li>
+            <li><a href="/fuentes">Fuentes y metodología</a></li>
+            <li><a href={site.careersUrl} rel="noopener">Trabaja con nosotros</a></li>
+            <li><a href="/contacto">Contacto</a></li>
+          </ul>
+        </div>
+      </nav>
+    </div>
+
+    <ul class="foot__offices" role="list" aria-label="Oficinas">
+      {offices.map((o) => (
+        <li>
+          <p class="foot__country"><img src={o.flag} alt="" width="18" height="18" loading="lazy" />{o.country}</p>
+          <p class="t-micro">{o.address}<br />{o.city}</p>
+          <a class="t-micro" href={`tel:${o.phone.replace(/\s/g, '')}`}>{o.phone}</a>
+        </li>
+      ))}
+    </ul>
+
+    <div class="foot__legal">
+      <p class="t-micro">© {year} {site.legalName} · CUIT {site.taxId} · {site.address}</p>
+      <div class="foot__links">
+        <a class="t-micro" href={`mailto:${site.email}`}>{site.email}</a>
+        <a class="t-micro" href="/privacidad">Privacidad</a>
+        <a class="t-micro" href="/fuentes">Fuentes</a>
+        <span class="foot__social">
+          <a href={site.social.linkedin} rel="noopener" aria-label="LinkedIn de Urbetrack"><Icon name="linkedin" size={20} /></a>
+          <a href={site.social.instagram} rel="noopener" aria-label="Instagram de Urbetrack"><Icon name="instagram" size={20} /></a>
+          <a href={site.social.facebook} rel="noopener" aria-label="Facebook de Urbetrack"><Icon name="facebook" size={20} /></a>
+        </span>
+      </div>
+    </div>
+  </div>
+</footer>
+
+<style>
+  .foot { padding: clamp(72px, 8vw, 120px) 0 32px; }
+  .foot__top { display: grid; grid-template-columns: minmax(260px, 380px) 1fr; gap: clamp(40px, 6vw, 96px); padding-bottom: 56px; border-bottom: 1px solid var(--linea); }
+  .foot__brand { display: grid; gap: 18px; align-content: start; justify-items: start; }
+  .foot__logo { width: 120px; display: block; }
+  .foot__sig { font-size: 1.5rem; font-weight: 300; letter-spacing: -.02em; line-height: 1.2; }
+  .foot__cta { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 8px; }
+  .foot__cols { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 32px; }
+  .foot__h { font-size: var(--fs-micro); font-weight: 700; letter-spacing: .18em; text-transform: uppercase; color: var(--u-violeta-claro); margin-bottom: 16px; }
+  .foot__cols ul { display: grid; gap: 4px; }
+  .foot__cols a { display: inline-block; padding: 5px 0; color: #e7e9ef; text-decoration: none; font-size: var(--fs-small); }
+  .foot__cols a:hover { color: #fff; text-decoration: underline; }
+  .foot__offices { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 24px; padding: 40px 0; border-bottom: 1px solid var(--linea); color: var(--u-acero); }
+  .foot__offices li { display: grid; gap: 6px; align-content: start; }
+  .foot__offices a { color: var(--u-acero); text-decoration: none; }
+  .foot__offices a:hover { color: #fff; }
+  .foot__country { display: flex; align-items: center; gap: 8px; font-weight: 700; color: #fff; font-size: var(--fs-small); }
+  .foot__country img { border-radius: 50%; }
+  .foot__legal { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 16px; padding-top: 24px; color: var(--u-acero); }
+  .foot__links { display: flex; flex-wrap: wrap; align-items: center; gap: 20px; }
+  .foot__links a { color: var(--u-acero); text-decoration: none; }
+  .foot__links a:hover { color: #fff; }
+  .foot__social { display: inline-flex; gap: 12px; }
+  @media (max-width: 960px) {
+    .foot__top { grid-template-columns: 1fr; }
+    .foot__offices { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  }
+  @media (max-width: 620px) {
+    .foot__cols { grid-template-columns: 1fr 1fr; }
+    .foot__cols > div:last-child { grid-column: 1 / -1; }
+  }
+</style>

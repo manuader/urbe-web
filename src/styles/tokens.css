@@ -1,0 +1,126 @@
+/* ==========================================================================
+   Urbetrack · "Evidencia luminosa" — tokens
+   Fuente: design-system/sistema/tokens.json (paleta oficial de urbetrack.com
+   + derivados [D] calculados para contraste). Extensiones de este sitio
+   marcadas [EXT] y documentadas en docs/DS-EXTENSION.md.
+   ========================================================================== */
+
+@font-face {
+  font-family: "Montserrat";
+  src: url("/fonts/Montserrat-VF.woff2") format("woff2-variations"), url("/fonts/Montserrat-VF.woff2") format("woff2");
+  font-weight: 100 900;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Montserrat";
+  src: url("/fonts/Montserrat-Italic-VF.woff2") format("woff2-variations"), url("/fonts/Montserrat-Italic-VF.woff2") format("woff2");
+  font-weight: 100 900;
+  font-style: italic;
+  font-display: swap;
+}
+/* Fallback métrico para evitar saltos de layout mientras carga la fuente [EXT] */
+@font-face {
+  font-family: "Montserrat Fallback";
+  src: local("Arial");
+  size-adjust: 112%;
+  ascent-override: 86%;
+  descent-override: 22%;
+  line-gap-override: 0%;
+}
+
+:root {
+  /* Paleta oficial */
+  --u-violeta: #6e4299;
+  --u-naranja: #f38435;
+  --u-pin: #ee7824;
+  --u-tinta: #171b25;
+  --u-grafito: #282b34;
+  --u-texto: #383838;
+  --u-niebla: #f4f4f4;
+  --u-acero: #99acc2;
+  --u-ceniza: #c4c8d3;
+  --u-error: #f2545b;
+  --u-blanco: #ffffff;
+
+  /* Derivados [D] */
+  --u-estudio: #fafafb;
+  --u-lavanda: #efe9f6;
+  --u-lavanda-2: #dccfea;
+  --u-violeta-claro: #b79bd9;
+  --u-texto-suave: #5b5e68;
+  --u-alerta-txt: #b3540f;
+  --u-verificado: #1c7349;
+  --u-verificado-osc: #7fd8a8;
+  --u-linea: #e6e3ec;
+  --u-linea-osc: #2e3240;
+  --u-error-txt: #c2323a;
+
+  /* [EXT] tintes funcionales */
+  --u-violeta-profundo: #4f2d72;   /* hover del violeta sobre claro (8,9:1) */
+  --u-alerta-fondo: #fff1e6;       /* fondo de chip de alerta; texto u-alerta-txt 4,6:1 */
+  --u-tinta-2: #1e2330;            /* superficie elevada sobre tinta */
+  --u-tinta-3: #262c3b;            /* borde/hover sobre tinta */
+
+  /* Degradés y luz */
+  --u-grad: linear-gradient(90deg, var(--u-violeta) 0%, var(--u-pin) 100%);
+  --u-grad-rev: linear-gradient(90deg, var(--u-pin) 0%, var(--u-violeta) 100%);
+  --u-glow-v: 0 0 0 1px rgba(110, 66, 153, .22), 0 10px 30px -8px rgba(110, 66, 153, .35), inset 0 1px 0 rgba(255, 255, 255, .9);
+  --u-glow-n: 0 0 0 1.5px rgba(238, 120, 36, .85), 0 0 22px -2px rgba(238, 120, 36, .55);
+  --u-sombra: 0 24px 60px -28px rgba(23, 27, 37, .28);
+  --u-sombra-2: 0 2px 6px -2px rgba(23, 27, 37, .08), 0 18px 44px -24px rgba(23, 27, 37, .22); /* [EXT] tarjetas editoriales */
+
+  /* Tipografía */
+  --ff: "Montserrat", "Montserrat Fallback", "Helvetica Neue", Arial, sans-serif;
+  --fs-display: clamp(2.55rem, 1.05rem + 5vw, 6.2rem);  /* [EXT] display más contenido que el 8,4rem de campaña */
+  --fs-h1: clamp(2.35rem, 1.3rem + 3.8vw, 5rem);
+  --fs-h2: clamp(1.95rem, 1.2rem + 2.6vw, 3.6rem);
+  --fs-h3: clamp(1.35rem, 1.1rem + 1vw, 1.9rem);
+  --fs-h4: clamp(1.08rem, 1rem + .35vw, 1.25rem);
+  --fs-lead: clamp(1.08rem, 1rem + .45vw, 1.4rem);
+  --fs-body: 1.0625rem; /* 17 px: legibilidad en pantalla [EXT desde 16] */
+  --fs-small: .9375rem; /* 15 px */
+  --fs-micro: .8125rem; /* 13 px: mínimo absoluto de texto informativo [EXT] */
+  --fs-kicker: .78rem;
+  --fs-stat: clamp(2.6rem, 1.8rem + 2.6vw, 4.5rem);
+
+  /* Espaciado (grilla 4) */
+  --s-1: 4px; --s-2: 8px; --s-3: 12px; --s-4: 16px; --s-5: 24px;
+  --s-6: 32px; --s-7: 48px; --s-8: 64px; --s-9: 96px; --s-10: 128px;
+  --sec-y: clamp(80px, 5rem + 5vw, 168px);
+  --gutter: clamp(16px, 4.4vw, 64px);
+  --maxw: 1440px;
+  --measure: 64ch;
+  --nav-h: 72px;
+
+  /* Radios */
+  --r-box: 5px; --r-check: 6px; --r-btn: 10px; --r-card: 14px; --r-glass: 16px; --r-pill: 999px;
+
+  /* Movimiento (ver docs/MOTION.md) */
+  --ease-out: cubic-bezier(.22, 1, .36, 1);
+  --ease-io: cubic-bezier(.65, 0, .35, 1);
+  --ease-back: cubic-bezier(.34, 1.4, .64, 1);
+  --t-micro: 180ms;
+  --t-medio: 450ms;
+  --t-lento: 900ms;
+
+  /* Tema claro (por defecto) */
+  --fondo: var(--u-blanco);
+  --ink: var(--u-texto);
+  --ink-2: var(--u-texto-suave);
+  --acento: var(--u-violeta);
+  --linea: var(--u-linea);
+  --superficie: var(--u-blanco);
+  color-scheme: light;
+}
+
+/* Secciones oscuras: el violeta de texto pasa a violeta claro y el secundario a acero */
+.sf-tinta, [data-theme="oscuro"] {
+  --fondo: var(--u-tinta);
+  --ink: #ffffff;
+  --ink-2: var(--u-acero);
+  --acento: var(--u-violeta-claro);
+  --linea: var(--u-linea-osc);
+  --superficie: var(--u-tinta-2);
+  color-scheme: dark;
+}

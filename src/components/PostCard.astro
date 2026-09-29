@@ -1,0 +1,38 @@
+---
+import type { Post } from '../lib/blog';
+import { catLabel, fmtDate, readingMinutes } from '../lib/blog';
+interface Props { p: Post; size?: 'lg' | 'md' | 'row' }
+const { p, size = 'md' } = Astro.props;
+const d = p.data;
+---
+<a class:list={['pc card', `pc--${size}`]} href={`/recursos/blog/${p.id}`} data-search={`${d.title} ${d.description} ${d.tags.join(' ')} ${catLabel(d.category)}`.toLowerCase()} data-cat={d.category}>
+  <figure class="pc__fig"><img src={d.image} alt={d.imageAlt} width="800" height="500" loading="lazy" decoding="async" /></figure>
+  <div class="pc__body">
+    <p class="pc__meta"><span class="pc__cat">{catLabel(d.category)}</span><span>{fmtDate(d.date)}</span><span>{readingMinutes(p.body)} min</span></p>
+    <h3 class="pc__t">{d.title}</h3>
+    <p class="pc__d">{d.description}</p>
+    {d.draft && <span class="ev ev--ilustrativo pc__draft">Borrador a validar</span>}
+  </div>
+</a>
+<style>
+  .pc { display: grid; grid-template-rows: auto 1fr; overflow: hidden; height: 100%; }
+  .pc__fig { aspect-ratio: 16 / 9; overflow: hidden; background: var(--u-niebla); }
+  .pc__fig img { width: 100%; height: 100%; object-fit: cover; transition: transform 1.2s var(--ease-out); }
+  .pc:hover .pc__fig img { transform: scale(1.04); }
+  .pc__body { display: grid; gap: 10px; padding: 22px; align-content: start; justify-items: start; }
+  .pc__meta { display: flex; flex-wrap: wrap; gap: 6px 12px; font-size: var(--fs-micro); font-weight: 600; color: var(--u-texto-suave); }
+  .pc__cat { color: var(--u-violeta); font-weight: 700; }
+  .pc__t { font-size: 1.2rem; font-weight: 800; line-height: 1.28; letter-spacing: -.01em; color: var(--u-texto); text-wrap: balance; }
+  .pc:hover .pc__t { color: var(--u-violeta); }
+  .pc__d { font-size: var(--fs-small); color: var(--u-texto-suave); line-height: 1.5; }
+  .pc--lg { grid-template-columns: 1.2fr 1fr; grid-template-rows: none; }
+  .pc--lg .pc__fig { aspect-ratio: auto; min-height: 320px; }
+  .pc--lg .pc__body { padding: clamp(24px, 3vw, 40px); align-content: center; }
+  .pc--lg .pc__t { font-size: clamp(1.5rem, 1.2rem + 1vw, 2.1rem); font-weight: 300; letter-spacing: -.02em; }
+  .pc--row { grid-template-columns: 160px 1fr; grid-template-rows: none; }
+  .pc--row .pc__fig { aspect-ratio: auto; }
+  .pc--row .pc__body { padding: 16px 18px; }
+  .pc--row .pc__t { font-size: 1rem; }
+  .pc--row .pc__d { display: none; }
+  @media (max-width: 800px) { .pc--lg { grid-template-columns: 1fr; } .pc--lg .pc__fig { min-height: 0; aspect-ratio: 16 / 9; } }
+</style>

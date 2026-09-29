@@ -1,0 +1,120 @@
+---
+import SectionHead from '../SectionHead.astro';
+import Icon from '../Icon.astro';
+import Evidence from '../Evidence.astro';
+import type { Evidence as Ev, IconName } from '../../data/types';
+
+const items: { who: string; title: string; cost: string; fix: string; href: string; icon: IconName; ev?: Ev }[] = [
+  {
+    who: 'Gobiernos',
+    title: 'El prestador dice que pasó. El vecino dice que no.',
+    cost: 'El pago y las penalidades se discuten sin un registro que ambas partes acepten. Cada reclamo abre una inspección.',
+    fix: 'Cada levantamiento queda vinculado a contenedor, unidad, hora y lugar.',
+    href: '/soluciones/recoleccion-certificada',
+    icon: 'rfid',
+  },
+  {
+    who: 'Prestadores',
+    title: 'Llega un acta y no hay con qué responderla.',
+    cost: 'Las multas se calculan en puntos sobre la facturación del servicio. Sin evidencia del momento del levantamiento, el descargo depende de la palabra.',
+    fix: 'Evidencia georreferenciada de cada parada, lista para el descargo.',
+    href: '/sectores/prestadores',
+    icon: 'doc',
+    ev: { level: 'validar', note: 'en CABA, 1 punto = 0,01 % de la facturación mensual · confirmar con el pliego vigente' },
+  },
+  {
+    who: 'Gobiernos y prestadores',
+    title: 'El plan de trabajo vive en papel.',
+    cost: 'Una ruta que no se registra no se puede auditar ni mejorar. Las frecuencias se ajustan por intuición.',
+    fix: 'Rutas fijas, a demanda o por llenado, comparadas contra lo ejecutado.',
+    href: '/soluciones/rutas-y-contenedores',
+    icon: 'route',
+  },
+  {
+    who: 'Gobiernos',
+    title: 'Los reclamos llegan antes que el dato.',
+    cost: 'Se reacciona tarde, el mismo punto vuelve a acumular residuos y el reclamo se repite.',
+    fix: 'Incidencias con foto que se asignan, se siguen y se cierran con evidencia.',
+    href: '/soluciones/incidencias-y-reclamos',
+    icon: 'megaphone',
+  },
+  {
+    who: 'Flotas',
+    title: 'El combustible no cierra.',
+    cost: 'Cargas, consumos y kilómetros que nadie puede conciliar por unidad. La diferencia se paga todos los meses.',
+    fix: 'Cada carga autorizada y cada litro medido, por unidad y conductor.',
+    href: '/soluciones/control-de-combustible',
+    icon: 'fuel',
+  },
+  {
+    who: 'Flotas',
+    title: 'El accidente se explica después.',
+    cost: 'Personas en riesgo, unidades detenidas y una discusión sin imágenes sobre lo que pasó.',
+    fix: 'Alertas de fatiga y distracción en cabina, con video del evento.',
+    href: '/soluciones/movilidad-segura',
+    icon: 'shield',
+  },
+];
+---
+<section class="section prob sf-estudio" id="problemas" aria-labelledby="prob-t">
+  <div class="wrap prob__grid">
+    <div class="prob__head">
+      <SectionHead
+        id="prob-t"
+        kicker="El punto de partida"
+        light="Cuando falta el dato,"
+        bold="la discusión ocupa su lugar."
+        lead="Seis situaciones que se repiten en operaciones de higiene urbana y flotas. Ninguna es un problema de tecnología: son problemas de <strong>evidencia</strong>."
+      />
+      <p class="prob__note t-small t-muted" data-rv style="--d:.3s">Cada una tiene un costo que se paga todos los meses, aunque no figure en ningún tablero.</p>
+    </div>
+    <ol class="prob__list" role="list">
+      {items.map((it, i) => (
+        <li class="prob__item card" data-rv style={`--d:${(i % 2) * 0.08}s`}>
+          <p class="prob__who"><span class="num">{String(i + 1).padStart(2, '0')}</span>{it.who}</p>
+          <h3 class="prob__t">{it.title}</h3>
+          <p class="prob__cost"><b>Lo que cuesta.</b> {it.cost}</p>
+          {it.ev && <Evidence ev={it.ev} />}
+          <a class="prob__fix" href={it.href}>
+            <span class="tile-ico tile-ico--sm"><Icon name={it.icon} /></span>
+            <span>{it.fix}</span>
+            <Icon name="arrow" size={18} class="prob__arrow" />
+          </a>
+        </li>
+      ))}
+    </ol>
+  </div>
+</section>
+
+<style>
+  .prob__grid { display: grid; grid-template-columns: minmax(0, 4.4fr) minmax(0, 7.6fr); gap: clamp(40px, 6vw, 96px); align-items: start; }
+  .prob__head { position: sticky; top: calc(var(--nav-h) + 40px); display: grid; gap: 28px; }
+  .prob__note { max-width: 36ch; padding-left: 16px; border-left: 2px solid var(--u-lavanda-2); }
+  .prob__list { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
+  .prob__item { display: grid; gap: 14px; align-content: start; padding: 26px 26px 18px; overflow: hidden; }
+  .prob__item::before {
+    content: ""; position: absolute; left: 0; top: 0; bottom: 0; width: 3px; background: var(--u-grad);
+    transform: scaleY(0); transform-origin: top; transition: transform .6s var(--ease-out);
+  }
+  .prob__item:hover::before, .prob__item:focus-within::before { transform: scaleY(1); }
+  .prob__who { display: flex; align-items: center; gap: 10px; font-size: var(--fs-micro); font-weight: 700; letter-spacing: .12em; text-transform: uppercase; color: var(--u-texto-suave); }
+  .prob__who .num { color: var(--u-violeta); letter-spacing: .04em; }
+  .prob__t { font-size: clamp(1.2rem, 1.05rem + .5vw, 1.45rem); font-weight: 300; line-height: 1.25; letter-spacing: -.015em; color: var(--u-texto); }
+  .prob__cost { font-size: var(--fs-small); color: var(--u-texto-suave); line-height: 1.55; }
+  .prob__cost b { color: var(--u-texto); font-weight: 700; }
+  .prob__fix {
+    display: grid; grid-template-columns: auto 1fr auto; gap: 12px; align-items: center; margin-top: 4px; padding-top: 14px;
+    border-top: 1px solid var(--u-linea); font-size: var(--fs-small); font-weight: 700; color: var(--u-violeta); text-decoration: none; line-height: 1.4;
+  }
+  .prob__arrow { transition: transform var(--t-micro) var(--ease-out); }
+  .prob__fix:hover .prob__arrow { transform: translateX(4px); }
+  .prob__fix:hover span:nth-child(2) { text-decoration: underline; text-underline-offset: .25em; }
+  @media (max-width: 1080px) {
+    .prob__grid { grid-template-columns: 1fr; }
+    .prob__head { position: static; }
+  }
+  @media (max-width: 680px) {
+    .prob__list { grid-template-columns: 1fr; }
+    .prob__item { padding: 22px 20px 16px; }
+  }
+</style>

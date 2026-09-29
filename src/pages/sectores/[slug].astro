@@ -1,0 +1,157 @@
+---
+import Base from '../../layouts/Base.astro';
+import PageHero from '../../components/PageHero.astro';
+import SectionHead from '../../components/SectionHead.astro';
+import Steps from '../../components/Steps.astro';
+import CaseCard from '../../components/CaseCard.astro';
+import SolutionCard from '../../components/SolutionCard.astro';
+import FAQ from '../../components/FAQ.astro';
+import CtaBand from '../../components/CtaBand.astro';
+import Evidence from '../../components/Evidence.astro';
+import Icon from '../../components/Icon.astro';
+import { sectors } from '../../data/sectors';
+import { solutions } from '../../data/solutions';
+import { cases } from '../../data/cases';
+import { sectorGroups } from '../../data/nav';
+import type { Sector, Solution } from '../../data/types';
+
+export function getStaticPaths() {
+  return sectors.map((s) => ({ params: { slug: s.slug }, props: { s } }));
+}
+const { s } = Astro.props as { s: Sector };
+const sols = s.solutions.map((x) => solutions.find((y) => y.slug === x)).filter((x): x is Solution => !!x);
+const cs = s.caseSlugs.map((x) => cases.find((y) => y.slug === x)).filter((x): x is NonNullable<typeof x> => !!x);
+const tipo = s.slug === 'gobiernos' ? 'gobierno' : s.slug === 'prestadores' ? 'prestador' : 'empresa';
+const audienceLabel = s.audience === 'publico' ? 'Sector público' : 'Empresas';
+const siblings = sectorGroups.flatMap((g) => g.links).filter((l) => !l.href.endsWith(`/${s.slug}`));
+---
+<Base title={s.seo.title} description={s.seo.description} image={s.hero.image}>
+  <PageHero
+    crumbs={[{ href: '/', label: 'Inicio' }, { label: audienceLabel }, { label: s.name }]}
+    kicker={s.hero.kicker}
+    light={s.hero.titleLight}
+    bold={s.hero.titleBold}
+    lead={s.hero.lead}
+    image={s.hero.image}
+    imageAlt={s.hero.imageAlt}
+    cta={{ href: '#contacto', label: 'Solicitar demo', source: `sector-${s.slug}` }}
+    secondary={{ href: '#soluciones', label: 'Ver soluciones' }}
+  />
+
+  <section class="section sf-blanco q" aria-labelledby="s-q">
+    <div class="wrap q__grid">
+      <div>
+        <p class="kicker kicker--muted">La pregunta que te trae</p>
+        <h2 class="q__t" id="s-q" data-rv>{s.question}</h2>
+      </div>
+      <ul class="q__pains" role="list">
+        {s.pains.map((p, i) => (
+          <li data-rv style={`--d:${i * 0.06}s`}>
+            <span class="num">{String(i + 1).padStart(2, '0')}</span>
+            <div><h3 class="t-h4">{p.title}</h3><p class="t-muted t-small">{p.body}</p></div>
+          </li>
+        ))}
+      </ul>
+    </div>
+  </section>
+
+  <section class="section sf-estudio" aria-labelledby="s-out">
+    <div class="wrap">
+      <SectionHead id="s-out" kicker="Lo que obtienes" light="Qué cambia" bold="con Urbetrack." />
+      <ul class="out" role="list">
+        {s.outcomes.map((o, i) => (
+          <li class="card" data-rv style={`--d:${(i % 2) * 0.08}s`}>
+            <h3 class="t-h4">{o.title}</h3>
+            <p class="t-muted t-small">{o.body}</p>
+            {o.evidence && <Evidence ev={o.evidence} />}
+          </li>
+        ))}
+      </ul>
+    </div>
+  </section>
+
+  <section class="section sf-blanco" id="soluciones" aria-labelledby="s-sol">
+    <div class="wrap">
+      <SectionHead id="s-sol" kicker="Soluciones" light="Por dónde empezar," bold="según tu operación." lead="Ordenadas por relevancia para este sector. Se contratan por módulo y se combinan en la misma plataforma." />
+      <ul class="sols" role="list">{sols.map((x, i) => <li data-rv style={`--d:${(i % 3) * 0.06}s`}><SolutionCard s={x} /></li>)}</ul>
+    </div>
+  </section>
+
+  <section class="section sf-estudio" aria-labelledby="s-jour">
+    <div class="wrap jour__grid">
+      <div class="jour__head">
+        <SectionHead id="s-jour" kicker={s.audience === 'publico' ? 'Contratación e implementación' : 'Implementación'} light={s.audience === 'publico' ? 'Cómo se contrata' : 'Cómo se pone'} bold={s.audience === 'publico' ? 'y cómo se implementa.' : 'en marcha.'} />
+      </div>
+      <Steps items={s.journey} />
+    </div>
+  </section>
+
+  {cs.length > 0 && (
+    <section class="section sf-blanco" aria-labelledby="s-cases">
+      <div class="wrap">
+        <div class="cases__head">
+          <SectionHead id="s-cases" kicker="Evidencia" light="Casos" bold="con fuente." />
+          <a class="link-arrow" href="/casos"><span>Todos los casos</span><Icon name="arrow" /></a>
+        </div>
+        <ul class="cases" role="list">{cs.slice(0, 3).map((c, i) => <li data-rv style={`--d:${i * 0.07}s`}><CaseCard c={c} /></li>)}</ul>
+      </div>
+    </section>
+  )}
+
+  {s.logos && s.logos.length > 0 && (
+    <section class="section--tight sf-blanco" aria-label="Organizaciones">
+      <div class="wrap">
+        <p class="t-small t-muted logos__note">{s.logosNote}</p>
+        {s.logos.length === 1 ? (
+          <img class="logos__composite" src={s.logos[0].src} alt={s.logos[0].alt} loading="lazy" width="620" height="220" />
+        ) : (
+          <ul class="logos" role="list">{s.logos.map((l) => <li><img src={l.src} alt={l.alt} loading="lazy" width="160" height="60" /></li>)}</ul>
+        )}
+      </div>
+    </section>
+  )}
+
+  <section class="section sf-estudio" aria-labelledby="s-faq">
+    <div class="wrap faq__grid">
+      <SectionHead id="s-faq" kicker="Preguntas frecuentes" light="Lo que suelen" bold="preguntarnos." />
+      <FAQ items={s.faq} />
+    </div>
+  </section>
+
+  <section class="section--tight sf-blanco">
+    <div class="wrap sib">
+      <p class="t-small t-muted">Otros sectores</p>
+      <p class="sib__list">{siblings.map((l) => <a class="tag" href={l.href}>{l.label}</a>)}</p>
+    </div>
+  </section>
+
+  <CtaBand source={`sector-${s.slug}`} preset={{ tipo }} id={`demo-${s.slug}`} />
+</Base>
+
+<style>
+  .q__grid { display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 7fr); gap: clamp(40px, 6vw, 96px); align-items: start; }
+  .q__t { font-size: clamp(1.7rem, 1.1rem + 2vw, 2.8rem); font-weight: 300; line-height: 1.18; letter-spacing: -.022em; color: var(--u-texto); margin-top: 16px; text-wrap: balance; }
+  .q__pains { display: grid; gap: 4px; }
+  .q__pains li { display: grid; grid-template-columns: 40px 1fr; gap: 14px; padding: 18px 0; border-bottom: 1px solid var(--u-linea); }
+  .q__pains .num { font-weight: 800; color: var(--u-violeta); font-size: .9rem; padding-top: 2px; }
+  .q__pains h3 { color: var(--u-texto); margin-bottom: 4px; }
+  .out { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; margin-top: 40px; }
+  .out li { display: grid; gap: 10px; padding: 26px; justify-items: start; align-content: start; }
+  .out h3 { color: var(--u-texto); }
+  .sols { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; margin-top: 40px; }
+  .jour__grid { display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 7fr); gap: clamp(40px, 6vw, 96px); align-items: start; }
+  .jour__head { position: sticky; top: calc(var(--nav-h) + 40px); }
+  .cases__head { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: end; gap: 20px; }
+  .cases { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; margin-top: 36px; }
+  .logos__note { margin-bottom: 16px; }
+  .logos__composite { max-width: 620px; width: 100%; height: auto; filter: grayscale(1); opacity: .8; }
+  .faq__grid { display: grid; grid-template-columns: minmax(0, 4fr) minmax(0, 8fr); gap: clamp(40px, 6vw, 96px); align-items: start; }
+  .sib { display: flex; flex-wrap: wrap; align-items: center; gap: 12px; }
+  .sib__list { display: flex; flex-wrap: wrap; gap: 6px; }
+  @media (max-width: 1000px) {
+    .q__grid, .jour__grid, .faq__grid { grid-template-columns: 1fr; }
+    .jour__head { position: static; }
+    .sols, .cases { grid-template-columns: 1fr 1fr; }
+  }
+  @media (max-width: 640px) { .out, .sols, .cases { grid-template-columns: 1fr; } }
+</style>

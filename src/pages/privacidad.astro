@@ -1,0 +1,28 @@
+---
+import Base from '../layouts/Base.astro';
+import PageHero from '../components/PageHero.astro';
+import { site } from '../data/site';
+---
+<Base title="Política de privacidad" description="Cómo trata Urbetrack (Pagustech S.R.L.) los datos personales que recibe a través de este sitio y de sus formularios." noindex>
+  <PageHero crumbs={[{ href: '/', label: 'Inicio' }, { label: 'Privacidad' }]} kicker="Legal" light="Política" bold="de privacidad." />
+  <section class="section--tight sf-blanco">
+    <div class="wrap wrap--text prose">
+      <p class="draft"><span class="ev ev--validar">Borrador</span> Texto base para el rediseño. Debe reemplazarse por la política vigente de Urbetrack y revisarse con el área legal antes de publicar.</p>
+      <h2>Quién es responsable</h2>
+      <p>{site.legalName} (CUIT {site.taxId}), con domicilio en {site.address}, es responsable de los datos que recibe a través de este sitio. En España, los datos que correspondan se tratan a través de Urbetrack SL.</p>
+      <h2>Qué datos recibimos</h2>
+      <p>Los que completas en los formularios (nombre, correo laboral, organización, país, teléfono y el mensaje que escribas) y datos de navegación básicos, como la página de origen y los parámetros de campaña de la visita.</p>
+      <h2>Para qué los usamos</h2>
+      <p>Para responder tu solicitud, coordinar una demo y, si lo aceptas, enviarte información relacionada con los servicios de Urbetrack. No vendemos datos personales.</p>
+      <h2>Con quién los compartimos</h2>
+      <p>Usamos HubSpot como plataforma de gestión de contactos. Solo accede a los datos el personal de Urbetrack que atiende tu solicitud.</p>
+      <h2>Tus derechos</h2>
+      <p>Puedes pedir acceso, rectificación o supresión de tus datos escribiendo a <a href={`mailto:${site.email}`}>{site.email}</a>. En Argentina rige la Ley 25.326 de Protección de Datos Personales; en España, el Reglamento General de Protección de Datos.</p>
+      <h2>Cookies</h2>
+      <p>El sitio usa almacenamiento propio para recordar el origen de tu visita. Las herramientas de analítica y seguimiento de terceros solo se activan con tu consentimiento.</p>
+    </div>
+  </section>
+</Base>
+<style>
+  .draft { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; padding: 14px 16px; border-radius: 12px; border: 1px dashed var(--u-ceniza); font-size: var(--fs-small); color: var(--u-texto-suave); }
+</style>

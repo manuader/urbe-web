@@ -1,0 +1,50 @@
+---
+/**
+ * Problema → capacidad → decisión → resultado. Cada fila se "conecta" de izquierda
+ * a derecha cuando entra en pantalla: el movimiento muestra la causalidad.
+ */
+import type { ValueChain } from '../data/types';
+import Evidence from './Evidence.astro';
+interface Props { items: ValueChain[] }
+const { items } = Astro.props;
+const heads = ['Problema', 'Capacidad de la plataforma', 'Decisión o acción', 'Resultado esperado'];
+---
+<div class="vc">
+  <div class="vc__heads" aria-hidden="true">{heads.map((h, i) => <span><i class="num">{String(i + 1).padStart(2, '0')}</i>{h}</span>)}</div>
+  <ol class="vc__rows" role="list">
+    {items.map((c, i) => (
+      <li class="vc__row" data-rv style={`--d:${i * 0.08}s`}>
+        <div class="vc__cell vc__cell--p"><span class="vc__lab">{heads[0]}</span>{c.problem}</div>
+        <div class="vc__cell"><span class="vc__lab">{heads[1]}</span>{c.capability}</div>
+        <div class="vc__cell"><span class="vc__lab">{heads[2]}</span>{c.decision}</div>
+        <div class="vc__cell vc__cell--r"><span class="vc__lab">{heads[3]}</span><b>{c.result}</b>{c.evidence && <Evidence ev={c.evidence} />}</div>
+        <span class="vc__line" aria-hidden="true"></span>
+      </li>
+    ))}
+  </ol>
+</div>
+<style>
+  .vc__heads, .vc__row { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 16px; }
+  .vc__heads { padding: 0 20px 14px; font-size: var(--fs-micro); font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: var(--ink-2); }
+  .vc__heads i { font-style: normal; color: var(--acento); margin-right: 8px; }
+  .vc__rows { display: grid; gap: 12px; }
+  .vc__row { position: relative; padding: 22px 20px; border-radius: var(--r-card); background: var(--superficie); border: 1px solid var(--linea); }
+  .vc__cell { position: relative; font-size: var(--fs-small); line-height: 1.5; color: var(--ink); display: grid; gap: 8px; align-content: start; justify-items: start; z-index: 1; }
+  .vc__cell--p { color: var(--ink-2); }
+  .vc__cell--r b { font-weight: 800; color: var(--acento); }
+  .vc__lab { display: none; font-size: .75rem; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: var(--ink-2); }
+  .vc__cell + .vc__cell::before {
+    content: ""; position: absolute; left: -12px; top: .55em; width: 7px; height: 7px; border-radius: 50%;
+    background: var(--superficie); border: 2px solid var(--u-violeta-claro);
+  }
+  .vc__line { position: absolute; left: 20px; right: 20px; top: 0; height: 2px; background: var(--u-grad); transform: scaleX(0); transform-origin: left; border-radius: 2px; }
+  :global(.rv-ready) .vc__row.is-in .vc__line { transform: scaleX(1); transition: transform 1.4s var(--ease-io) calc(var(--d, 0s) + .2s); }
+  :global(html:not(.rv-ready)) .vc__line { transform: scaleX(1); }
+  @media (max-width: 900px) {
+    .vc__heads { display: none; }
+    .vc__row { grid-template-columns: 1fr; gap: 14px; }
+    .vc__lab { display: block; }
+    .vc__cell + .vc__cell::before { display: none; }
+    .vc__cell + .vc__cell { padding-top: 14px; border-top: 1px dashed var(--linea); }
+  }
+</style>

@@ -1,0 +1,166 @@
+---
+import Base from '../layouts/Base.astro';
+import Icon from '../components/Icon.astro';
+import SectionHead from '../components/SectionHead.astro';
+import HeroOps from '../components/demos/HeroOps.astro';
+import StreetDefs from '../components/demos/StreetDefs.astro';
+import Connect from '../components/demos/Connect.astro';
+import SignalSequence from '../components/demos/SignalSequence.astro';
+import FleetUnit from '../components/demos/FleetUnit.astro';
+import Credentials from '../components/home/Credentials.astro';
+import Problems from '../components/home/Problems.astro';
+import Audiences from '../components/home/Audiences.astro';
+import Evidence from '../components/home/Evidence.astro';
+import Scale from '../components/home/Scale.astro';
+import NextStep from '../components/home/NextStep.astro';
+import FAQ from '../components/FAQ.astro';
+import { homeFaq } from '../data/faq';
+import { site } from '../data/site';
+
+const webLd = { '@context': 'https://schema.org', '@type': 'WebSite', '@id': `${site.url}/#web`, url: site.url, name: 'Urbetrack', inLanguage: 'es', publisher: { '@id': `${site.url}/#org` } };
+---
+<Base
+  title="Urbetrack · Gestión con evidencia para residuos, higiene urbana y flotas"
+  description="Software, IoT, IA y consultoría para ver cada ruta en tiempo real, actuar sobre lo que requiere atención y certificar cada servicio. Para municipios, prestadores y flotas."
+  jsonLd={[webLd]}
+>
+  <StreetDefs />
+  <!-- 1 · Qué hace, para quién y su beneficio -->
+  <section class="hero sf-estudio" aria-labelledby="hero-t">
+    <div class="wrap hero__grid">
+      <div class="hero__copy">
+        <p class="kicker in">Residuos · Higiene urbana · Flotas</p>
+        <h1 class="t-mix hero__t" id="hero-t">
+          <span class="rv-line in"><span>Entiende qué pasa</span></span>
+          <span class="rv-line in"><span style="--d:.08s">en tu operación.</span></span>
+          <span class="rv-line in"><span style="--d:.16s"><b class="v">Decide con evidencia.</b></span></span>
+        </h1>
+        <hr class="rule in" style="--d:.35s" />
+        <p class="t-lead hero__lead in" style="--d:.34s">
+          Urbetrack conecta vehículos, contenedores y cuadrillas en una sola plataforma: ves cada ruta en tiempo real, actúas sobre lo que requiere atención y <strong>certificas cada servicio con datos</strong>.
+        </p>
+        <div class="hero__ctas in" style="--d:.42s">
+          <a class="btn btn--demo" href="#contacto" data-cta="hero">Solicitar demo <Icon name="arrow" class="arrow" /></a>
+          <a class="btn btn--ghost" href="#como-funciona">Ver cómo funciona</a>
+        </div>
+
+      </div>
+      <div class="hero__demo in" style="--d:.2s">
+        <HeroOps />
+      </div>
+      <ul class="hero__who in" role="list" style="--d:.5s" aria-label="Para quién">
+        <li><a href="/sectores/gobiernos"><Icon name="building" size={20} /><span><b>Gobiernos</b> que controlan el servicio que pagan</span><Icon name="arrow" size={16} class="hero__go" /></a></li>
+        <li><a href="/sectores/prestadores"><Icon name="container" size={20} /><span><b>Prestadores</b> que demuestran su cumplimiento</span><Icon name="arrow" size={16} class="hero__go" /></a></li>
+        <li><a href="/sectores/logistica"><Icon name="truck" size={20} /><span><b>Empresas</b> con flotas en la calle o en el terreno</span><Icon name="arrow" size={16} class="hero__go" /></a></li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- 2 · ¿Son serios? -->
+  <Credentials />
+
+  <!-- 3 · ¿Esto me pasa a mí? -->
+  <Problems />
+
+  <!-- 4 · ¿Qué puedo ver, controlar o mejorar? -->
+  <section class="section conn sf-blanco" aria-labelledby="conn-t">
+    <div class="wrap">
+      <SectionHead id="conn-t" kicker="Cómo conecta la información" light="Una sola" bold="verdad operativa." align="center" lead="Cada señal de la calle llega al mismo lugar. Operación, control y dirección miran el mismo dato, y la discusión pasa a ser sobre qué hacer." class="conn__head" />
+      <div class="conn__diagram"><Connect /></div>
+      <p class="conn__hint t-small t-muted">Pasa el cursor o enfoca cada fuente para ver a quién le sirve.</p>
+    </div>
+  </section>
+
+  <!-- 5 · ¿Cómo funciona en mi operación? -->
+  <section class="section howit sf-estudio" id="como-funciona" aria-labelledby="how-t">
+    <div class="wrap">
+      <SectionHead id="how-t" kicker="Cómo funciona" light="De la señal" bold="a la decisión." lead="Un turno de recolección, paso a paso: qué registra la unidad, qué ve el supervisor, qué alerta la plataforma y qué queda certificado." class="howit__head" />
+      <SignalSequence />
+    </div>
+  </section>
+
+  <!-- 6 · ¿Qué me corresponde? -->
+  <Audiences />
+
+  <!-- 7 · ¿Qué veo en pantalla? -->
+  <section class="section fleet sf-tinta" id="plataforma" aria-labelledby="fleet-t">
+    <div class="wrap fleet__grid">
+      <div class="fleet__copy">
+        <SectionHead id="fleet-t" kicker="La plataforma" light="Del panorama de la flota" bold="al detalle de cada unidad." lead="Monitor Online muestra dónde está cada vehículo y en qué estado. Un clic abre la ficha: sensores, avance de ruta, conductor y eventos, en tiempo real." />
+        <ul class="checks fleet__list" data-rv>
+          <li>Posición, velocidad y estado de sensores de cada unidad</li>
+          <li>Alertas por reglas: detenciones, desvíos, eventos de seguridad</li>
+          <li>Conductor identificado con tarjeta RFID</li>
+          <li>Histórico de recorridos y reconstrucción en Simulador 3D</li>
+        </ul>
+        <a class="btn btn--ghost" href="/plataforma">Conocer la plataforma <Icon name="arrow" class="arrow" /></a>
+      </div>
+      <div class="fleet__demo" data-rv style="--d:.15s"><FleetUnit /></div>
+    </div>
+  </section>
+
+  <!-- 8 · ¿Funciona en operaciones como la mía? -->
+  <Evidence />
+
+  <!-- 9 · ¿Pueden acompañarme? -->
+  <Scale />
+
+  <!-- 10 · ¿Cómo avanzo? -->
+  <NextStep />
+
+  <!-- 11 · Preguntas -->
+  <section class="section faq sf-blanco" id="preguntas" aria-labelledby="faq-t">
+    <div class="wrap faq__grid">
+      <SectionHead id="faq-t" kicker="Preguntas frecuentes" light="Respuestas" bold="directas." lead="Lo que suelen preguntar las áreas de compras, operaciones y sistemas antes de una primera reunión." />
+      <FAQ items={homeFaq} />
+    </div>
+  </section>
+</Base>
+
+<style>
+  .hero { padding: calc(var(--nav-h) + clamp(36px, 4.5vw, 80px)) 0 clamp(56px, 6vw, 104px); overflow: hidden; position: relative; }
+  .hero::before {
+    content: ""; position: absolute; inset: 0; pointer-events: none;
+    background-image: radial-gradient(circle at 1px 1px, rgba(110, 66, 153, .1) 1px, transparent 0);
+    background-size: 28px 28px; mask-image: linear-gradient(180deg, #000 0%, transparent 80%);
+  }
+  .hero__grid { position: relative; display: grid; grid-template-columns: minmax(0, 5.4fr) minmax(0, 6.6fr); grid-template-areas: 'copy demo' 'who demo'; column-gap: clamp(32px, 4.5vw, 80px); row-gap: 28px; align-items: center; }
+  .hero__copy { grid-area: copy; align-self: end; }
+  .hero__demo { grid-area: demo; }
+  .hero__who { grid-area: who; align-self: start; }
+  .hero__copy { display: grid; gap: 24px; justify-items: start; }
+  .hero__t { font-size: clamp(2.4rem, .75rem + 3.3vw, 4.2rem); line-height: 1.05; }
+  .hero__lead { max-width: 40ch; }
+  .hero__ctas { display: flex; flex-wrap: wrap; gap: 12px; }
+  .hero__who { display: grid; width: 100%; max-width: 460px; border-top: 1px solid var(--u-linea); }
+  .hero__who a {
+    display: grid; grid-template-columns: auto 1fr auto; align-items: center; gap: 12px; padding: 12px 4px; border-bottom: 1px solid var(--u-linea);
+    color: var(--u-texto-suave); font-size: var(--fs-small); text-decoration: none; transition: color var(--t-micro), padding var(--t-micro) var(--ease-out);
+  }
+  .hero__who a > :global(svg:first-child) { color: var(--u-violeta); }
+  .hero__who b { color: var(--u-texto); font-weight: 700; }
+  .hero__who :global(.hero__go) { color: var(--u-violeta); opacity: 0; transform: translateX(-6px); transition: all var(--t-micro) var(--ease-out); }
+  .hero__who a:hover { color: var(--u-violeta); padding-left: 10px; }
+  .hero__who a:hover :global(.hero__go) { opacity: 1; transform: none; }
+
+  .conn :global(.conn__head) { margin-bottom: clamp(48px, 6vw, 88px); }
+  .conn__hint { text-align: center; margin-top: 28px; }
+  @media (hover: none) { .conn__hint { display: none; } }
+  .howit :global(.howit__head) { margin-bottom: clamp(24px, 3vw, 40px); }
+
+  .fleet__grid { display: grid; grid-template-columns: minmax(0, 4fr) minmax(0, 8fr); gap: clamp(40px, 5vw, 80px); align-items: center; }
+  .fleet__copy { display: grid; gap: 28px; justify-items: start; }
+  .fleet__list { color: #dfe3ea; font-size: var(--fs-small); }
+  .faq__grid { display: grid; grid-template-columns: minmax(0, 4fr) minmax(0, 8fr); gap: clamp(40px, 6vw, 96px); align-items: start; }
+
+  @media (max-width: 1080px) {
+    .hero__grid { grid-template-columns: 1fr; grid-template-areas: 'copy' 'demo' 'who'; row-gap: 40px; }
+
+    .fleet__grid, .faq__grid { grid-template-columns: 1fr; }
+  }
+  @media (max-width: 520px) {
+    .hero__ctas { width: 100%; }
+    .hero__ctas .btn { flex: 1 1 100%; }
+    .hero .kicker { letter-spacing: .16em; }
+  }
+</style>

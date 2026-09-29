@@ -1,0 +1,75 @@
+---
+import Icon from './Icon.astro';
+import { nativeWidth } from '../lib/images';
+interface Crumb { href?: string; label: string }
+interface Props {
+  crumbs: Crumb[];
+  kicker?: string;
+  light: string;
+  bold: string;
+  lead?: string;
+  image?: string;
+  imageAlt?: string;
+  imageFit?: 'cover' | 'contain';
+  cta?: { href: string; label: string; source?: string };
+  secondary?: { href: string; label: string };
+  dark?: boolean;
+}
+const { crumbs, kicker, light, bold, lead, image, imageAlt = '', imageFit = 'cover', cta, secondary, dark = false } = Astro.props;
+const nw = nativeWidth(image);
+const fit = nw ? 'native' : imageFit;
+const ld = {
+  '@context': 'https://schema.org', '@type': 'BreadcrumbList',
+  itemListElement: crumbs.map((c, i) => ({ '@type': 'ListItem', position: i + 1, name: c.label, ...(c.href ? { item: new URL(c.href, 'https://urbetrack.com').href } : {}) })),
+};
+---
+<section class:list={['ph', dark ? 'sf-tinta' : 'sf-estudio', { 'ph--img': !!image }]}>
+  <div class="wrap ph__grid">
+    <div class="ph__copy">
+      <nav aria-label="Migas de pan" class="in"><ol class="crumbs" role="list">
+        {crumbs.map((c, i) => <li>{c.href && i < crumbs.length - 1 ? <a href={c.href}>{c.label}</a> : <span aria-current="page">{c.label}</span>}</li>)}
+      </ol></nav>
+      {kicker && <p class="kicker in" style="--d:.04s">{kicker}</p>}
+      <h1 class="t-mix t-h1 ph__t">
+        <span class="rv-line in"><span style="--d:.08s">{light}</span></span>
+        <span class="rv-line in"><span style="--d:.16s"><b class="v">{bold}</b></span></span>
+      </h1>
+      <hr class="rule in" style="--d:.3s" />
+      {lead && <p class="t-lead in" style="--d:.34s">{lead}</p>}
+      {(cta || secondary) && (
+        <div class="ph__ctas in" style="--d:.42s">
+          {cta && <a class="btn btn--demo" href={cta.href} data-cta={cta.source ?? 'page-hero'}>{cta.label} <Icon name="arrow" class="arrow" /></a>}
+          {secondary && <a class="btn btn--ghost" href={secondary.href}>{secondary.label}</a>}
+        </div>
+      )}
+      <slot name="extra" />
+    </div>
+    {image && (
+      <figure class:list={['ph__fig in', `ph__fig--${fit}`]} style="--d:.2s">
+        <img src={image} alt={imageAlt} width={nw ?? 1200} height="800" fetchpriority="high" decoding="async" style={nw ? `max-width:${nw}px` : undefined} />
+      </figure>
+    )}
+    <slot name="aside" />
+  </div>
+</section>
+<script type="application/ld+json" set:html={JSON.stringify(ld)} />
+<style>
+  .ph { padding: calc(var(--nav-h) + clamp(40px, 5vw, 88px)) 0 clamp(56px, 6vw, 96px); position: relative; overflow: hidden; }
+  .ph::before {
+    content: ""; position: absolute; inset: 0; pointer-events: none;
+    background-image: radial-gradient(circle at 1px 1px, rgba(110, 66, 153, .1) 1px, transparent 0);
+    background-size: 28px 28px; mask-image: linear-gradient(180deg, #000, transparent 85%);
+  }
+  .sf-tinta.ph::before { background-image: radial-gradient(circle at 1px 1px, rgba(183, 155, 217, .12) 1px, transparent 0); }
+  .ph__grid { position: relative; display: grid; gap: clamp(32px, 5vw, 80px); align-items: center; }
+  .ph--img .ph__grid { grid-template-columns: minmax(0, 6fr) minmax(0, 6fr); }
+  .ph__copy { display: grid; gap: 22px; justify-items: start; max-width: 780px; }
+  .ph__t { font-size: clamp(2.2rem, 1.2rem + 3.2vw, 4.3rem); }
+  .ph__ctas { display: flex; flex-wrap: wrap; gap: 12px; }
+  .ph__fig { border-radius: 20px; overflow: hidden; background: #fff; box-shadow: 0 0 0 1px var(--u-linea), var(--u-sombra); aspect-ratio: 4 / 3; }
+  .ph__fig img { width: 100%; height: 100%; object-fit: cover; }
+  .ph__fig--contain img { object-fit: contain; padding: 4%; background: var(--u-estudio); }
+  .ph__fig--native { display: grid; place-items: center; background: radial-gradient(120% 90% at 30% 20%, #fff, var(--u-estudio) 60%, #eeeaf4); }
+  .ph__fig--native img { width: 100%; height: auto; object-fit: contain; margin: auto; border-radius: 12px; }
+  @media (max-width: 960px) { .ph--img .ph__grid { grid-template-columns: 1fr; } .ph__fig { aspect-ratio: 16 / 10; } }
+</style>

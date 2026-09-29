@@ -1,0 +1,14 @@
+User-agent: *
+Allow: /
+
+# Asistentes de IA: el contenido es público y está pensado para ser citado con su fuente.
+User-agent: GPTBot
+Allow: /
+User-agent: ClaudeBot
+Allow: /
+User-agent: PerplexityBot
+Allow: /
+User-agent: Google-Extended
+Allow: /
+
+Sitemap: https://urbetrack.com/sitemap-index.xml

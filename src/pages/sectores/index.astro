@@ -1,0 +1,52 @@
+---
+import Base from '../../layouts/Base.astro';
+import PageHero from '../../components/PageHero.astro';
+import Icon from '../../components/Icon.astro';
+import CtaBand from '../../components/CtaBand.astro';
+import { sectors } from '../../data/sectors';
+const groups = [
+  { id: 'publico', t: 'Sector público', d: 'Organismos que contratan y controlan la higiene urbana, y las empresas que la prestan.' },
+  { id: 'empresas', t: 'Empresas', d: 'Operaciones con flotas propias o tercerizadas, en la ciudad o en zonas remotas.' },
+] as const;
+---
+<Base title="Sectores: gobiernos, prestadores y empresas con flota" description="Recorridos específicos para gobiernos y municipios, prestadores de higiene urbana, oil & gas, minería, construcción y logística.">
+  <PageHero crumbs={[{ href: '/', label: 'Inicio' }, { label: 'Sectores' }]} kicker="Sectores" light="Cada operación tiene" bold="su propia pregunta." lead="Elige tu sector para ver qué problemas resolvemos, cómo se contrata y qué casos lo respaldan." />
+  <section class="section--tight sf-blanco">
+    <div class="wrap secs">
+      {groups.map((g) => (
+        <div class="secs__g">
+          <div class="secs__h"><h2 class="t-h3">{g.t}</h2><p class="t-muted t-small">{g.d}</p></div>
+          <ul class="secs__list" role="list">
+            {sectors.filter((s) => s.audience === g.id).map((s, i) => (
+              <li data-rv style={`--d:${i * 0.06}s`}>
+                <a class="card secs__c" href={`/sectores/${s.slug}`}>
+                  <figure><img src={s.hero.image} alt="" width="600" height="380" loading="lazy" /></figure>
+                  <div>
+                    <p class="secs__n"><span class="tile-ico tile-ico--sm"><Icon name={s.icon} /></span>{s.name}</p>
+                    <p class="secs__q">{s.question}</p>
+                    <p class="t-small t-muted">{s.short}</p>
+                  </div>
+                </a>
+              </li>
+            ))}
+          </ul>
+        </div>
+      ))}
+    </div>
+  </section>
+  <CtaBand source="sectores" id="demo-sectores" />
+</Base>
+<style>
+  .secs { display: grid; gap: 56px; padding-block: 24px; }
+  .secs__h { display: grid; gap: 6px; margin-bottom: 20px; }
+  .secs__h h2 { color: var(--u-texto); }
+  .secs__list { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
+  .secs__c { display: grid; grid-template-columns: 200px 1fr; overflow: hidden; height: 100%; }
+  .secs__c figure { background: var(--u-niebla); }
+  .secs__c img { width: 100%; height: 100%; object-fit: cover; }
+  .secs__c > div { padding: 22px; display: grid; gap: 10px; align-content: start; }
+  .secs__n { display: flex; align-items: center; gap: 10px; font-weight: 800; color: var(--u-texto); }
+  .secs__q { font-size: 1.05rem; font-weight: 300; line-height: 1.35; color: var(--u-texto); }
+  @media (max-width: 1000px) { .secs__list { grid-template-columns: 1fr; } }
+  @media (max-width: 560px) { .secs__c { grid-template-columns: 1fr; } .secs__c figure { aspect-ratio: 16 / 9; } }
+</style>

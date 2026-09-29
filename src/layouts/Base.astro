@@ -1,0 +1,73 @@
+---
+import '../styles/tokens.css';
+import '../styles/base.css';
+import '../styles/components.css';
+import Seo from '../components/Seo.astro';
+import Nav from '../components/Nav.astro';
+import Footer from '../components/Footer.astro';
+import { site } from '../data/site';
+import { ANALYTICS, HUBSPOT } from '../config';
+
+interface Props {
+  title: string;
+  description?: string;
+  image?: string;
+  type?: 'website' | 'article';
+  noindex?: boolean;
+  jsonLd?: object[];
+  published?: string;
+  modified?: string;
+  bodyClass?: string;
+}
+const props = Astro.props;
+
+const orgLd = {
+  '@context': 'https://schema.org',
+  '@type': 'Organization',
+  '@id': `${site.url}/#org`,
+  name: 'Urbetrack',
+  legalName: site.legalName,
+  taxID: site.taxId,
+  url: site.url,
+  logo: `${site.url}/brand/urbetrack-logo-horizontal-color.svg`,
+  slogan: site.slogan,
+  email: site.email,
+  telephone: site.phone,
+  foundingDate: '2007',
+  address: { '@type': 'PostalAddress', streetAddress: 'Av. Rivadavia 4260, pisos 11 y 12', addressLocality: 'Ciudad Autónoma de Buenos Aires', postalCode: 'C1205AAP', addressCountry: 'AR' },
+  sameAs: Object.values(site.social),
+};
+---
+<!doctype html>
+<html lang="es-AR">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="theme-color" content="#171B25" />
+    <meta name="color-scheme" content="light" />
+    <link rel="icon" type="image/svg+xml" href="/brand/urbetrack-isotipo-color.svg" />
+    <link rel="preload" href="/fonts/Montserrat-VF.woff2" as="font" type="font/woff2" crossorigin />
+    <link rel="alternate" type="application/rss+xml" title="Blog de Urbetrack" href="/recursos/blog/rss.xml" />
+    <link rel="alternate" type="text/plain" title="Resumen para modelos de lenguaje" href="/llms.txt" />
+    <link rel="sitemap" href="/sitemap-index.xml" />
+    <Seo {...props} jsonLd={[orgLd, ...(props.jsonLd ?? [])]} />
+    <script is:inline>try{var d=document.documentElement;if(sessionStorage.getItem('u-logo'))d.dataset.logo='static';else sessionStorage.setItem('u-logo','1')}catch(e){}</script>
+    {ANALYTICS.gtmId && (
+      <script is:inline define:vars={{ id: ANALYTICS.gtmId }}>
+        (function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src='https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);})(window,document,'script','dataLayer',id);
+      </script>
+    )}
+    {HUBSPOT.tracking && <script is:inline async defer id="hs-script-loader" src={`https://js.hs-scripts.com/${HUBSPOT.portalId}.js`}></script>}
+  </head>
+  <body class={props.bodyClass}>
+    <a class="skip" href="#contenido">Saltar al contenido</a>
+    <Nav />
+    <main id="contenido" tabindex="-1">
+      <slot />
+    </main>
+    <Footer />
+    <script>
+      import '../scripts/global';
+    </script>
+  </body>
+</html>

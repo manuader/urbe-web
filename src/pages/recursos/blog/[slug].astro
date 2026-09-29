@@ -1,0 +1,178 @@
+---
+import { render } from 'astro:content';
+import Base from '../../../layouts/Base.astro';
+import Icon from '../../../components/Icon.astro';
+import PostCard from '../../../components/PostCard.astro';
+import SolutionCard from '../../../components/SolutionCard.astro';
+import CaseCard from '../../../components/CaseCard.astro';
+import CtaBand from '../../../components/CtaBand.astro';
+import { getPosts, catLabel, fmtDate, readingMinutes, type Post } from '../../../lib/blog';
+import { solutions } from '../../../data/solutions';
+import { cases } from '../../../data/cases';
+import { site } from '../../../data/site';
+import type { Solution } from '../../../data/types';
+
+export async function getStaticPaths() {
+  const posts = await getPosts();
+  return posts.map((p) => ({ params: { slug: p.id }, props: { p, posts } }));
+}
+const { p, posts } = Astro.props as { p: Post; posts: Post[] };
+const d = p.data;
+const { Content, headings } = await render(p);
+const toc = headings.filter((h) => h.depth === 2);
+const sols = d.relatedSolutions.map((s) => solutions.find((x) => x.slug === s)).filter((x): x is Solution => !!x);
+const cs = d.relatedCases.map((s) => cases.find((x) => x.slug === s)).filter((x): x is NonNullable<typeof x> => !!x);
+const more = posts.filter((x) => x.id !== p.id && (x.data.category === d.category || x.data.featured)).slice(0, 3);
+const url = `${site.url}/recursos/blog/${p.id}/`;
+const ld = [
+  {
+    '@context': 'https://schema.org', '@type': 'BlogPosting', headline: d.title, description: d.description, image: new URL(d.image, site.url).href,
+    datePublished: d.date.toISOString().slice(0, 10), dateModified: (d.updated ?? d.date).toISOString().slice(0, 10),
+    author: { '@type': 'Organization', name: d.author, url: site.url }, publisher: { '@id': `${site.url}/#org` },
+    mainEntityOfPage: url, inLanguage: 'es', articleSection: catLabel(d.category), keywords: d.tags.join(', '),
+    citation: d.sources.filter((s) => s.url).map((s) => ({ '@type': 'CreativeWork', name: s.label, url: s.url })),
+  },
+  { '@context': 'https://schema.org', '@type': 'BreadcrumbList', itemListElement: [
+    { '@type': 'ListItem', position: 1, name: 'Inicio', item: `${site.url}/` },
+    { '@type': 'ListItem', position: 2, name: 'Blog', item: `${site.url}/recursos/blog/` },
+    { '@type': 'ListItem', position: 3, name: d.title },
+  ] },
+];
+---
+<Base title={d.title} description={d.description} image={d.image} type="article" published={d.date.toISOString()} modified={(d.updated ?? d.date).toISOString()} jsonLd={ld} noindex={d.draft}>
+  <article class="art" aria-labelledby="art-t">
+    <header class="art__head sf-estudio">
+      <div class="wrap wrap--narrow">
+        <nav aria-label="Migas de pan" class="in"><ol class="crumbs" role="list"><li><a href="/">Inicio</a></li><li><a href="/recursos/blog">Blog</a></li><li><a href={`/recursos/blog/categoria/${d.category}`}>{catLabel(d.category)}</a></li></ol></nav>
+        <h1 class="art__t in" id="art-t" style="--d:.06s">{d.title}</h1>
+        <p class="t-lead art__lead in" style="--d:.14s">{d.description}</p>
+        <div class="art__meta in" style="--d:.22s">
+          <span class="art__av" aria-hidden="true"><img src="/brand/urbetrack-isotipo-color.svg" alt="" width="18" height="22" /></span>
+          <span><b>{d.author}</b>{d.authorRole && <small>{d.authorRole}</small>}</span>
+          <span class="art__sep" aria-hidden="true"></span>
+          <span><time datetime={d.date.toISOString().slice(0, 10)}>{fmtDate(d.date)}</time>{d.updated && <small>Actualizado el {fmtDate(d.updated)}</small>}</span>
+          <span class="art__sep" aria-hidden="true"></span>
+          <span>{readingMinutes(p.body)} min de lectura</span>
+        </div>
+        {d.draft && <p class="art__draft in" style="--d:.3s"><span class="ev ev--ilustrativo">Borrador editorial</span> Texto preparado para el rediseño; Urbetrack debe validarlo antes de publicarlo.</p>}
+      </div>
+    </header>
+
+    <figure class="wrap art__fig in" style="--d:.2s"><img src={d.image} alt={d.imageAlt} width="1400" height="760" fetchpriority="high" decoding="async" /></figure>
+
+    <div class="wrap art__grid">
+      <aside class="art__toc" aria-label="En este artículo">
+        {toc.length > 1 && (
+          <nav>
+            <p class="kicker kicker--muted">En este artículo</p>
+            <ol role="list">{toc.map((h) => <li><a href={`#${h.slug}`} data-toc={h.slug}>{h.text}</a></li>)}</ol>
+          </nav>
+        )}
+        <div class="art__share">
+          <p class="t-micro t-muted">Compartir</p>
+          <p>
+            <a href={`https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(url)}`} rel="noopener" target="_blank" aria-label="Compartir en LinkedIn"><Icon name="linkedin" size={20} /></a>
+            <a href={`mailto:?subject=${encodeURIComponent(d.title)}&body=${encodeURIComponent(url)}`} aria-label="Compartir por correo"><Icon name="mail" size={20} /></a>
+            <button type="button" data-copy={url} aria-label="Copiar enlace"><Icon name="external" size={20} /><span class="art__copied" aria-live="polite"></span></button>
+          </p>
+        </div>
+      </aside>
+
+      <div class="art__body">
+        <div class="prose"><Content /></div>
+
+        {d.sources.length > 0 && (
+          <section class="art__src" aria-labelledby="art-src">
+            <h2 class="t-h4" id="art-src">Fuentes</h2>
+            <ol>{d.sources.map((s) => <li>{s.url ? <a href={s.url} rel="noopener" target="_blank">{s.label}</a> : s.label}</li>)}</ol>
+            <p class="t-micro t-muted">Las etiquetas Comprobado, Declarado y A validar indican quién afirma cada dato. <a href="/fuentes">Cómo clasificamos la evidencia</a>.</p>
+          </section>
+        )}
+        <p class="art__tags">{d.tags.map((t) => <span class="tag">#{t}</span>)}</p>
+      </div>
+    </div>
+  </article>
+
+  {(sols.length > 0 || cs.length > 0) && (
+    <section class="section--tight sf-estudio" aria-labelledby="art-rel">
+      <div class="wrap">
+        <h2 class="t-h3 rel-t" id="art-rel">Para seguir</h2>
+        <ul class="rel" role="list">
+          {sols.map((s) => <li><SolutionCard s={s} /></li>)}
+          {cs.slice(0, Math.max(0, 3 - sols.length)).map((c) => <li><CaseCard c={c} /></li>)}
+        </ul>
+      </div>
+    </section>
+  )}
+
+  {more.length > 0 && (
+    <section class="section--tight sf-blanco" aria-labelledby="art-more">
+      <div class="wrap">
+        <h2 class="t-h3 rel-t" id="art-more">Más artículos</h2>
+        <ul class="rel" role="list">{more.map((m) => <li><PostCard p={m} /></li>)}</ul>
+      </div>
+    </section>
+  )}
+
+  <CtaBand source={`blog-${p.id}`} preset={{ interes: d.relatedSolutions.slice(0, 2) }} id="demo-art" />
+</Base>
+
+<style>
+  .art__head { padding: calc(var(--nav-h) + clamp(40px, 5vw, 80px)) 0 clamp(40px, 5vw, 64px); }
+  .art__head .wrap { display: grid; gap: 22px; justify-items: start; }
+  .art__t { font-size: clamp(2rem, 1.2rem + 2.8vw, 3.6rem); font-weight: 300; line-height: 1.1; letter-spacing: -.025em; color: var(--u-texto); text-wrap: balance; }
+  .art__lead { max-width: 60ch; }
+  .art__meta { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 14px; font-size: var(--fs-small); color: var(--u-texto-suave); }
+  .art__meta b { display: block; color: var(--u-texto); font-weight: 700; }
+  .art__meta small { display: block; font-size: var(--fs-micro); }
+  .art__av { width: 40px; height: 40px; border-radius: 50%; display: grid; place-items: center; background: #fff; box-shadow: 0 0 0 1px var(--u-linea); }
+  .art__sep { width: 1px; height: 28px; background: var(--u-linea); }
+  .art__draft { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; font-size: var(--fs-small); color: var(--u-texto-suave); padding: 12px 16px; border-radius: 12px; background: #fff; border: 1px dashed var(--u-ceniza); }
+  .art__fig { margin-top: -8px; }
+  .art__fig img { width: 100%; max-height: 560px; object-fit: cover; border-radius: 20px; }
+  .art__grid { display: grid; grid-template-columns: 240px minmax(0, 1fr); gap: clamp(32px, 5vw, 80px); padding-block: clamp(40px, 5vw, 72px); max-width: 1160px; }
+  .art__toc { position: sticky; top: calc(var(--nav-h) + 32px); align-self: start; display: grid; gap: 28px; }
+  .art__toc nav { display: grid; gap: 12px; }
+  .art__toc ol { display: grid; gap: 2px; border-left: 2px solid var(--u-linea); }
+  .art__toc a { display: block; padding: 6px 0 6px 14px; margin-left: -2px; border-left: 2px solid transparent; font-size: var(--fs-small); line-height: 1.35; color: var(--u-texto-suave); text-decoration: none; transition: color var(--t-micro), border-color var(--t-micro); }
+  .art__toc a:hover { color: var(--u-violeta); }
+  .art__toc a.is-cur { color: var(--u-violeta); border-left-color: var(--u-violeta); font-weight: 700; }
+  .art__share p:last-child { display: flex; gap: 8px; margin-top: 6px; }
+  .art__share a, .art__share button { position: relative; width: 40px; height: 40px; border-radius: 10px; display: grid; place-items: center; border: 1px solid var(--u-linea); background: #fff; color: var(--u-violeta); }
+  .art__share a:hover, .art__share button:hover { border-color: var(--u-violeta); }
+  .art__copied { position: absolute; top: 110%; left: 50%; transform: translateX(-50%); font-size: .75rem; font-weight: 700; white-space: nowrap; color: var(--u-violeta); }
+  .art__body { min-width: 0; }
+  .art__body .prose { font-size: 1.1rem; line-height: 1.75; max-width: 68ch; color: #2f3037; }
+  .art__body .prose :global(h2) { scroll-margin-top: calc(var(--nav-h) + 24px); }
+  .art__body .prose :global(.ev) { font-size: .78rem; vertical-align: 2px; }
+  .art__src { margin-top: 56px; padding-top: 28px; border-top: 1px solid var(--u-linea); display: grid; gap: 14px; max-width: 68ch; }
+  .art__src h2 { color: var(--u-texto); }
+  .art__src ol { padding-left: 1.2em; display: grid; gap: 8px; font-size: var(--fs-small); }
+  .art__src a { color: var(--u-violeta); font-weight: 600; }
+  .art__src .t-micro a { color: var(--u-violeta); }
+  .art__tags { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 28px; }
+  .rel-t { color: var(--u-texto); margin-bottom: 24px; }
+  .rel { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; }
+  @media (max-width: 1000px) {
+    .art__grid { grid-template-columns: 1fr; }
+    .art__toc { position: static; order: 2; }
+    .art__toc nav { display: none; }
+    .rel { grid-template-columns: 1fr 1fr; }
+  }
+  @media (max-width: 640px) { .rel { grid-template-columns: 1fr; } .art__sep { display: none; } }
+</style>
+
+<script>
+  // Índice: resalta la sección en lectura
+  const links = [...document.querySelectorAll<HTMLAnchorElement>('[data-toc]')];
+  if (links.length) {
+    const map = new Map(links.map((a) => [a.dataset.toc!, a]));
+    const io = new IntersectionObserver((es) => {
+      es.forEach((e) => { if (e.isIntersecting) { links.forEach((l) => l.classList.remove('is-cur')); map.get(e.target.id)?.classList.add('is-cur'); } });
+    }, { rootMargin: '-20% 0px -70% 0px' });
+    links.forEach((a) => { const h = document.getElementById(a.dataset.toc!); if (h) io.observe(h); });
+  }
+  document.querySelectorAll<HTMLButtonElement>('[data-copy]').forEach((b) => b.addEventListener('click', async () => {
+    try { await navigator.clipboard.writeText(b.dataset.copy!); b.querySelector('.art__copied')!.textContent = 'Enlace copiado'; setTimeout(() => (b.querySelector('.art__copied')!.textContent = ''), 1800); } catch { /* sin permiso */ }
+  }));
+</script>

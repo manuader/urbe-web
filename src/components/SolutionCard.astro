@@ -1,0 +1,20 @@
+---
+import type { Solution } from '../data/types';
+import Icon from './Icon.astro';
+interface Props { s: Solution }
+const { s } = Astro.props;
+---
+<a class="sc card" href={`/soluciones/${s.slug}`}>
+  <span class="tile-ico"><Icon name={s.icon} /></span>
+  <span class="sc__t">{s.name}</span>
+  <span class="sc__d">{s.short}</span>
+  <span class="sc__go">Ver solución <Icon name="arrow" size={16} /></span>
+</a>
+<style>
+  .sc { display: grid; gap: 12px; align-content: start; padding: 26px; height: 100%; }
+  .sc__t { font-size: 1.2rem; font-weight: 800; color: var(--ink); letter-spacing: -.01em; line-height: 1.25; margin-top: 6px; }
+  .sc__d { font-size: var(--fs-small); color: var(--ink-2); line-height: 1.5; }
+  .sc__go { display: inline-flex; gap: 6px; align-items: center; font-size: var(--fs-small); font-weight: 700; color: var(--acento); margin-top: 6px; }
+  .sc__go :global(svg) { transition: transform var(--t-micro) var(--ease-out); }
+  .sc:hover .sc__go :global(svg) { transform: translateX(4px); }
+</style>

@@ -1,0 +1,178 @@
+---
+/**
+ * "De la señal a la decisión": una secuencia que conecta un vehículo, los datos
+ * recibidos, una alerta y una decisión. El visual queda fijo mientras los pasos
+ * se leen con el scroll normal de la página (no se secuestra el scroll).
+ */
+import Icon from '../Icon.astro';
+const steps = [
+  {
+    k: 'La unidad trabaja', light: 'La unidad trabaja', bold: 'y lo informa.',
+    body: 'En cada parada, la antena de la tolva lee el tag del contenedor, los sensores registran la compactación y la toma de fuerza, y el GPS fija hora y lugar.',
+    mods: ['RFID en contenedores', 'Sensores de trabajo', 'Computadora de a bordo'],
+  },
+  {
+    k: 'La señal se vuelve dato', light: 'La señal se vuelve', bold: 'indicador.',
+    body: 'La plataforma cruza cada lectura con la ruta planificada. El supervisor ve el avance del turno en pantalla, sin llamar a la unidad.',
+    mods: ['Monitor Online', 'Planes de trabajo'],
+  },
+  {
+    k: 'Lo que se desvía, avisa', light: 'Lo que se desvía,', bold: 'avisa.',
+    body: 'Una regla detecta un contenedor sin levantar fuera de su ventana horaria y genera una alerta. Solo lo que requiere atención se vuelve naranja.',
+    mods: ['Reglas y alertas', 'Incidencias'],
+  },
+  {
+    k: 'La decisión queda registrada', light: 'La decisión', bold: 'queda registrada.',
+    body: 'La parada se reasigna a otra unidad y el levantamiento se certifica. Al cerrar el turno, el resumen queda listo para el organismo de control.',
+    mods: ['Cierre de Servicio', 'Monitor de Calidad'],
+  },
+];
+---
+<div class="seq" data-seq data-step="0">
+  <div class="seq__visual" aria-hidden="true">
+    <div class="seq__stage">
+      <span class="seq__floor"></span>
+      <span class="seq__ring"></span>
+      <img class="seq__truck" src="/img/campana/camion-trasera-operario.webp" alt="" width="655" height="453" loading="lazy" decoding="async" />
+
+      <svg class="seq__conn" viewBox="0 0 600 440" preserveAspectRatio="none">
+        <path class="c c1" pathLength="1" d="M168 272 C 260 272, 300 96, 392 96" />
+        <path class="c c2" pathLength="1" d="M236 176 C 300 176, 330 178, 392 178" />
+        <path class="c c3" pathLength="1" d="M300 318 C 350 318, 350 260, 392 260" />
+        <circle class="n n1" cx="168" cy="272" r="6" /><circle class="n n2" cx="236" cy="176" r="6" /><circle class="n n3" cx="300" cy="318" r="6" />
+      </svg>
+
+      <div class="chip glass chip--1"><span class="chip__l">RFID · CT-2487</span><span class="chip__v">Levantado <b class="num">08:42:15</b></span></div>
+      <div class="chip glass chip--2"><span class="chip__l">Compactación</span><span class="chip__v num"><b>84</b> %</span></div>
+      <div class="chip glass chip--3"><span class="chip__l">Toma de fuerza</span><span class="chip__v">Activa</span></div>
+
+      <div class="panel glass panel--kpi">
+        <p class="panel__h"><span>Turno R-12 · Unidad 24</span><span class="tag tag--live">En curso</span></p>
+        <p class="panel__big num"><b>38</b><span>/52 levantamientos</span></p>
+        <svg class="spark" viewBox="0 0 240 60" preserveAspectRatio="none"><path d="M0 52 L20 48 L40 44 L60 40 L80 38 L100 31 L120 27 L140 22 L160 20 L180 14 L200 12 L220 9 L240 6" /></svg>
+        <p class="panel__foot">Planificado vs. ejecutado · <b>73 %</b></p>
+      </div>
+
+      <div class="panel glass glass--alerta panel--alert">
+        <p class="panel__h"><span class="ico ico--alert"><Icon name="alert" size={16} /></span><b>CT-2511 sin levantar</b></p>
+        <p class="panel__sub">Ventana 08:00–09:00 vencida · Av. Díaz Vélez</p>
+      </div>
+
+      <div class="panel glass panel--done">
+        <p class="panel__h"><span class="ico"><Icon name="check" size={16} /></span><b>Reasignado a Unidad 31</b></p>
+        <p class="panel__sub">CT-2511 levantado · <span class="num">09:12</span></p>
+        <p class="panel__cert"><b class="num">52/52</b> Turno certificado</p>
+      </div>
+    </div>
+    <p class="seq__src">Simulación ilustrativa. Unidad, códigos y valores de ejemplo.</p>
+    <ol class="seq__dots" role="list">{steps.map((_, i) => <li data-dot={i}></li>)}</ol>
+  </div>
+
+  <ol class="seq__steps" role="list">
+    {steps.map((s, i) => (
+      <li class="seq__step" data-seq-step={i}>
+        <p class="seq__n num"><span>{String(i + 1).padStart(2, '0')}</span> / 04 · {s.k}</p>
+        <h3 class="t-mix t-h3">{s.light} <b class="v">{s.bold}</b></h3>
+        <p class="seq__body">{s.body}</p>
+        <p class="seq__mods"><span>Lo hace posible:</span>{s.mods.map((m) => <span class="tag">{m}</span>)}</p>
+      </li>
+    ))}
+  </ol>
+</div>
+
+<style>
+  .seq { display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 7fr); gap: clamp(40px, 6vw, 96px); }
+  .seq__steps { grid-column: 1; grid-row: 1; display: grid; }
+  .seq__visual { grid-column: 2; grid-row: 1; position: sticky; top: calc(var(--nav-h) + 32px); height: min(620px, calc(100vh - var(--nav-h) - 64px)); display: grid; grid-template-rows: 1fr auto; gap: 12px; }
+  .seq__step { min-height: 72vh; display: grid; align-content: center; gap: 16px; padding-block: 40px; opacity: .32; transition: opacity .5s var(--ease-out); }
+  .seq__step:first-child { min-height: 60vh; }
+  .seq__step:last-child { min-height: 64vh; }
+  .seq__step.is-cur { opacity: 1; }
+  .seq__n { font-size: var(--fs-micro); font-weight: 700; letter-spacing: .12em; text-transform: uppercase; color: var(--u-texto-suave); }
+  .seq__n span { color: var(--u-violeta); }
+  .seq__body { color: var(--u-texto-suave); max-width: 44ch; font-size: 1.08rem; }
+  .seq__mods { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; font-size: var(--fs-micro); font-weight: 700; color: var(--u-texto-suave); }
+  .seq__mods > span:first-child { margin-right: 4px; }
+
+  .seq__stage {
+    position: relative; border-radius: 22px; overflow: hidden;
+    background: radial-gradient(120% 90% at 30% 20%, #fff 0%, var(--u-estudio) 55%, #eeeaf4 100%);
+    box-shadow: 0 0 0 1px var(--u-linea), var(--u-sombra);
+  }
+  .seq__floor { position: absolute; left: 4%; right: 30%; bottom: 10%; height: 16%; border-radius: 50%; background: radial-gradient(closest-side, rgba(23, 27, 37, .18), transparent); }
+  .seq__ring { position: absolute; left: 8%; width: 58%; bottom: 8%; height: 14%; border-radius: 50%; border: 2px solid rgba(110, 66, 153, .55); box-shadow: 0 0 24px rgba(110, 66, 153, .35), inset 0 0 18px rgba(110, 66, 153, .25); }
+  .seq__truck { position: absolute; left: 2%; bottom: 12%; width: 64%; height: auto; clip-path: inset(0 7% 0 0); filter: drop-shadow(0 20px 24px rgba(23, 27, 37, .18)); transition: transform .9s var(--ease-out), filter .6s; }
+  .seq__conn { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; }
+  .c { fill: none; stroke: var(--u-violeta); stroke-width: 1.6; stroke-dasharray: 1; stroke-dashoffset: 1; transition: stroke-dashoffset .9s var(--ease-out); }
+  .n { fill: #fff; stroke: var(--u-violeta); stroke-width: 3; opacity: 0; transition: opacity .4s; }
+  .chip { position: absolute; left: 65%; padding: 10px 14px; display: grid; gap: 1px; min-width: 150px; opacity: 0; transform: translateX(10px); transition: opacity .5s var(--ease-out), transform .6s var(--ease-back); }
+  .chip--1 { top: 16%; } .chip--2 { top: 35%; } .chip--3 { top: 54%; }
+  .chip__l { font-size: .75rem; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: var(--u-texto-suave); }
+  .chip__v { font-size: 1.05rem; font-weight: 800; color: var(--u-texto); }
+  .chip__v b { color: var(--u-violeta); }
+
+  .panel { position: absolute; padding: 16px 18px; opacity: 0; transform: translateY(16px) scale(.98); transition: opacity .5s var(--ease-out), transform .6s var(--ease-back); }
+  .panel__h { display: flex; align-items: center; gap: 10px; justify-content: space-between; font-size: var(--fs-micro); font-weight: 700; color: var(--u-texto-suave); }
+  .panel__h b { font-size: .95rem; color: var(--u-texto); font-weight: 800; margin-right: auto; }
+  .panel__big { margin-top: 8px; display: flex; align-items: baseline; gap: 8px; }
+  .panel__big b { font-size: 2.6rem; font-weight: 800; color: var(--u-violeta); letter-spacing: -.04em; line-height: 1; }
+  .panel__big span { font-size: var(--fs-small); font-weight: 600; color: var(--u-texto-suave); }
+  .spark { width: 100%; height: 54px; margin-top: 8px; }
+  .spark path { fill: none; stroke: var(--u-violeta); stroke-width: 2.5; stroke-linejoin: round; stroke-dasharray: 400; stroke-dashoffset: 400; transition: stroke-dashoffset 1.4s var(--ease-out) .2s; }
+  .panel__foot { font-size: var(--fs-micro); color: var(--u-texto-suave); font-weight: 600; margin-top: 4px; }
+  .panel__foot b { color: var(--u-texto); }
+  .panel__sub { font-size: var(--fs-micro); color: var(--u-texto-suave); font-weight: 600; margin-top: 6px; }
+  .panel__cert { margin-top: 12px; padding-top: 10px; border-top: 1px solid var(--u-lavanda-2); font-size: var(--fs-small); font-weight: 700; color: var(--u-texto); display: flex; gap: 10px; align-items: baseline; }
+  .panel__cert b { font-size: 1.5rem; color: var(--u-violeta); letter-spacing: -.03em; }
+  .ico { width: 30px; height: 30px; border-radius: 9px; display: grid; place-items: center; background: var(--u-violeta); color: #fff; flex: none; }
+  .ico--alert { background: #ffe9d9; color: var(--u-pin); }
+  .panel--kpi { right: 5%; top: 7%; width: min(300px, 44%); }
+  .panel--alert { right: 6%; bottom: 20%; width: min(290px, 44%); }
+  .panel--done { right: 6%; bottom: 8%; width: min(300px, 46%); }
+  .seq__src { font-size: .75rem; color: var(--u-texto-suave); font-weight: 500; }
+  .seq__dots { display: none; }
+
+  /* Estados por paso */
+  .seq[data-step="0"] .chip, .seq[data-step="0"] .n { opacity: 1; transform: none; }
+  .seq[data-step="0"] .c { stroke-dashoffset: 0; }
+  .seq[data-step="0"] .chip--2 { transition-delay: .1s; } .seq[data-step="0"] .chip--3 { transition-delay: .2s; }
+  .seq[data-step="1"] .panel--kpi, .seq[data-step="2"] .panel--kpi, .seq[data-step="3"] .panel--kpi { opacity: 1; transform: none; }
+  .seq[data-step="1"] .spark path, .seq[data-step="2"] .spark path, .seq[data-step="3"] .spark path { stroke-dashoffset: 0; }
+  .seq[data-step="1"] .seq__truck, .seq[data-step="2"] .seq__truck, .seq[data-step="3"] .seq__truck { transform: translateX(-6%) scale(.94); }
+  .seq[data-step="2"] .panel--alert { opacity: 1; transform: none; }
+  .seq[data-step="2"] .panel--kpi { opacity: .45; }
+  .seq[data-step="3"] .panel--done { opacity: 1; transform: none; }
+  .seq[data-step="3"] .panel--kpi .panel__big b { color: var(--u-violeta); }
+
+  @media (max-width: 960px) {
+    .seq { grid-template-columns: 1fr; gap: 0; }
+    .seq__visual { grid-column: 1; grid-row: 1; top: calc(var(--nav-h) + 8px); height: 48vh; min-height: 300px; z-index: 2; background: var(--fondo); padding-bottom: 8px; }
+    .seq__steps { grid-column: 1; grid-row: 2; }
+    .seq__step, .seq__step:first-child, .seq__step:last-child { min-height: 58vh; align-content: start; padding-top: 32px; }
+    .seq__src { display: none; }
+    .seq__dots { display: flex; gap: 6px; justify-content: center; }
+    .seq__dots li { width: 24px; height: 3px; border-radius: 3px; background: var(--u-lavanda-2); transition: background .3s; }
+    .seq[data-step="0"] [data-dot="0"], .seq[data-step="1"] [data-dot="1"], .seq[data-step="2"] [data-dot="2"], .seq[data-step="3"] [data-dot="3"] { background: var(--u-violeta); }
+    .chip { left: auto; right: 4%; min-width: 0; padding: 8px 10px; }
+    .chip__v { font-size: .9rem; }
+    .panel { padding: 12px 14px; }
+    .panel--kpi, .panel--alert, .panel--done { width: 56%; }
+    .panel__big b { font-size: 1.8rem; }
+    .spark { height: 36px; }
+  }
+</style>
+
+<script>
+  document.querySelectorAll<HTMLElement>('[data-seq]').forEach((root) => {
+    const steps = [...root.querySelectorAll<HTMLElement>('[data-seq-step]')];
+    const set = (i: number) => {
+      root.dataset.step = String(i);
+      steps.forEach((s, k) => s.classList.toggle('is-cur', k === i));
+    };
+    set(0);
+    const io = new IntersectionObserver((entries) => {
+      entries.forEach((e) => { if (e.isIntersecting) set(Number((e.target as HTMLElement).dataset.seqStep)); });
+    }, { rootMargin: '-45% 0px -45% 0px', threshold: 0 });
+    steps.forEach((s) => io.observe(s));
+  });
+</script>

@@ -1,0 +1,304 @@
+---
+/**
+ * Solicitud de demo en tres pasos (organización → qué resolver → contacto).
+ * Sin JS se ve completo en una sola columna y ofrece el correo como alternativa.
+ * Envío: HubSpot Forms API v3 (src/scripts/hubspot.ts). Eventos: docs/HUBSPOT.md.
+ */
+import Icon from './Icon.astro';
+import { site } from '../data/site';
+interface Props { id?: string; preset?: { tipo?: string; interes?: string[] }; compact?: boolean; source?: string }
+const { id = 'demo', preset = {}, compact = false, source = 'home' } = Astro.props;
+const tipos = [
+  { v: 'gobierno', l: 'Gobierno o municipio', d: 'Organismo de control, higiene urbana', icon: 'building' },
+  { v: 'prestador', l: 'Prestador de higiene urbana', d: 'Recolección, barrido y limpieza', icon: 'container' },
+  { v: 'empresa', l: 'Empresa con flota', d: 'Logística, oil & gas, minería, construcción', icon: 'truck' },
+  { v: 'otro', l: 'Otro', d: 'Consultora, organismo multilateral, prensa', icon: 'users' },
+] as const;
+const intereses = [
+  ['recoleccion-certificada', 'Certificar la recolección'],
+  ['barrido-e-higiene-urbana', 'Barrido e higiene urbana'],
+  ['rutas-y-contenedores', 'Rutas y contenedores'],
+  ['incidencias-y-reclamos', 'Incidencias y reclamos'],
+  ['gestion-de-flotas', 'Gestión de flotas'],
+  ['movilidad-segura', 'Seguridad vial (ADAS y DSM)'],
+  ['control-de-combustible', 'Control de combustible'],
+  ['ia-y-video-analitica', 'IA y Video-Analítica'],
+  ['consultoria', 'Consultoría y pliegos'],
+];
+const paises = ['Argentina', 'México', 'Colombia', 'Chile', 'España', 'Uruguay', 'Perú', 'Paraguay', 'Ecuador', 'Otro país'];
+const consent = 'Acepto que Urbetrack (Pagustech S.R.L.) use estos datos para responder mi solicitud, según su política de privacidad.';
+---
+<form class:list={['df', { 'df--compact': compact }]} id={id} data-df data-source={source} novalidate aria-labelledby={`${id}-title`}>
+  <div class="df__head">
+    <p class="df__title" id={`${id}-title`}>Solicitar una demo</p>
+    <p class="df__progress" aria-live="polite"><span data-step-label>Paso 1 de 3</span><span class="df__bar"><i data-bar></i></span></p>
+  </div>
+
+  <fieldset class="df__step" data-step="1">
+    <legend class="df__q">¿Qué tipo de organización eres?</legend>
+    <div class="df__tipos">
+      {tipos.map((t) => (
+        <label class="df__tipo">
+          <input type="radio" name="tipo" value={t.v} required checked={preset.tipo === t.v} />
+          <span class="df__tipo-in">
+            <span class="tile-ico tile-ico--sm"><Icon name={t.icon} /></span>
+            <span><b>{t.l}</b><small>{t.d}</small></span>
+          </span>
+        </label>
+      ))}
+    </div>
+    <p class="err" data-err="tipo" aria-live="polite"></p>
+  </fieldset>
+
+  <fieldset class="df__step" data-step="2">
+    <legend class="df__q">¿Qué te gustaría resolver? <span class="opt">Puedes elegir varias</span></legend>
+    <div class="chips">
+      {intereses.map(([v, l]) => (
+        <label class="chip"><input type="checkbox" name="interes" value={v} checked={preset.interes?.includes(v)} /><span>{l}</span></label>
+      ))}
+    </div>
+    <div class="field">
+      <label for={`${id}-msg`}>Cuéntanos tu operación <span class="opt">(opcional)</span></label>
+      <textarea class="input" id={`${id}-msg`} name="mensaje" rows="3" maxlength="1500" placeholder="Por ejemplo: 40 camiones de recolección, contrato con penalidades por levantamiento, rutas en papel."></textarea>
+    </div>
+  </fieldset>
+
+  <fieldset class="df__step" data-step="3">
+    <legend class="df__q">¿Cómo te contactamos?</legend>
+    <div class="df__grid">
+      <div class="field">
+        <label for={`${id}-nombre`}>Nombre y apellido</label>
+        <input class="input" id={`${id}-nombre`} name="nombre" autocomplete="name" required aria-describedby={`${id}-e-nombre`} />
+        <p class="err" id={`${id}-e-nombre`} data-err="nombre" aria-live="polite"></p>
+      </div>
+      <div class="field">
+        <label for={`${id}-email`}>Correo laboral</label>
+        <input class="input" id={`${id}-email`} name="email" type="email" autocomplete="email" inputmode="email" required aria-describedby={`${id}-e-email`} placeholder="nombre@organizacion.com" />
+        <p class="err" id={`${id}-e-email`} data-err="email" aria-live="polite"></p>
+      </div>
+      <div class="field">
+        <label for={`${id}-org`}>Organización</label>
+        <input class="input" id={`${id}-org`} name="organizacion" autocomplete="organization" required aria-describedby={`${id}-e-org`} />
+        <p class="err" id={`${id}-e-org`} data-err="organizacion" aria-live="polite"></p>
+      </div>
+      <div class="field">
+        <label for={`${id}-pais`}>País</label>
+        <select class="input" id={`${id}-pais`} name="pais" required aria-describedby={`${id}-e-pais`}>
+          <option value="">Elige un país</option>
+          {paises.map((p) => <option>{p}</option>)}
+        </select>
+        <p class="err" id={`${id}-e-pais`} data-err="pais" aria-live="polite"></p>
+      </div>
+      <div class="field df__full">
+        <label for={`${id}-tel`}>Teléfono <span class="opt">(opcional)</span></label>
+        <input class="input" id={`${id}-tel`} name="telefono" type="tel" autocomplete="tel" inputmode="tel" />
+      </div>
+    </div>
+    <label class="check-line">
+      <input type="checkbox" name="consent" required aria-describedby={`${id}-e-consent`} />
+      <span>{consent.replace('su política de privacidad', '')}<a href="/privacidad">su política de privacidad</a>.</span>
+    </label>
+    <p class="err" id={`${id}-e-consent`} data-err="consent" aria-live="polite"></p>
+    <input type="text" name="empresa_web" tabindex="-1" autocomplete="off" class="df__hp" aria-hidden="true" />
+  </fieldset>
+
+  <div class="df__nav">
+    <button type="button" class="btn btn--ghost" data-prev hidden><Icon name="arrow" class="df__back" /> Volver</button>
+    <button type="button" class="btn btn--primario" data-next>Continuar <Icon name="arrow" class="arrow" /></button>
+    <button type="submit" class="btn btn--demo" data-submit hidden><span class="spin" aria-hidden="true"></span><span class="btn__label">Enviar solicitud</span></button>
+  </div>
+  <p class="df__alt t-micro t-muted">¿Prefieres escribirnos? <a href={`mailto:${site.email}?subject=Solicitud%20de%20demo`}>{site.email}</a> · {site.phone}</p>
+
+  <div class="df__state df__state--ok" data-ok hidden tabindex="-1">
+    <span class="df__ico"><Icon name="check" size={28} /></span>
+    <p class="df__state-t">Recibimos tu solicitud.</p>
+    <p class="t-muted">Un especialista de tu sector te va a escribir para coordinar la demo sobre un caso como el tuyo.</p>
+    <ol class="df__next" role="list">
+      <li><b>1</b> Revisamos lo que nos contaste</li>
+      <li><b>2</b> Coordinamos una conversación con un especialista</li>
+      <li><b>3</b> Te mostramos la plataforma con tu operación</li>
+    </ol>
+    <p class="t-micro t-muted" data-sim hidden>Modo de prueba: el envío a HubSpot está pendiente de configuración.</p>
+  </div>
+  <div class="df__state df__state--err" data-errbox hidden tabindex="-1" role="alert">
+    <span class="df__ico df__ico--err"><Icon name="alert" size={26} /></span>
+    <p class="df__state-t">No pudimos enviar tu solicitud.</p>
+    <p class="t-muted">Tus datos siguen cargados. Vuelve a intentarlo o escríbenos a <a href={`mailto:${site.email}`}>{site.email}</a>.</p>
+    <button type="button" class="btn btn--primario" data-retry>Reintentar</button>
+  </div>
+  <input type="hidden" name="_consent_text" value={consent} />
+</form>
+
+<style>
+  .df { position: relative; display: grid; gap: 24px; padding: clamp(24px, 3vw, 40px); border-radius: 20px; background: #fff; box-shadow: 0 0 0 1px var(--u-linea), var(--u-sombra); }
+  .df__head { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 12px; }
+  .df__title { font-size: 1.2rem; font-weight: 800; color: var(--u-texto); }
+  .df__progress { display: flex; align-items: center; gap: 12px; font-size: var(--fs-micro); font-weight: 700; color: var(--u-texto-suave); }
+  .df__bar { width: 96px; height: 4px; border-radius: 4px; background: var(--u-lavanda-2); overflow: hidden; }
+  .df__bar i { display: block; height: 100%; width: 100%; background: var(--u-grad); transform-origin: left; transform: scaleX(var(--p, .333)); transition: transform .5s var(--ease-out); }
+  .df__step { border: 0; padding: 0; margin: 0; display: grid; gap: 18px; min-width: 0; }
+  .df__q { font-size: clamp(1.25rem, 1.05rem + .7vw, 1.6rem); font-weight: 300; letter-spacing: -.015em; line-height: 1.25; color: var(--u-texto); padding: 0; margin-bottom: 6px; }
+  .df__q .opt { display: block; font-size: var(--fs-micro); font-weight: 600; color: var(--u-texto-suave); letter-spacing: 0; margin-top: 4px; }
+  .df__tipos { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .df__tipo { position: relative; }
+  .df__tipo input { position: absolute; opacity: 0; inset: 0; margin: 0; cursor: pointer; }
+  .df__tipo-in { display: flex; gap: 12px; align-items: center; height: 100%; padding: 14px; border-radius: 14px; border: 1.5px solid var(--u-lavanda-2); background: #fff; transition: all var(--t-micro) var(--ease-out); }
+  .df__tipo-in b { display: block; font-size: .95rem; font-weight: 800; color: var(--u-texto); line-height: 1.3; }
+  .df__tipo-in small { display: block; font-size: var(--fs-micro); color: var(--u-texto-suave); line-height: 1.35; }
+  .df__tipo input:hover + .df__tipo-in { border-color: var(--u-violeta-claro); }
+  .df__tipo input:checked + .df__tipo-in { border-color: var(--u-violeta); background: var(--u-estudio); box-shadow: 0 0 0 3px rgba(110, 66, 153, .12); }
+  .df__tipo input:focus-visible + .df__tipo-in { outline: 3px solid var(--u-pin); outline-offset: 3px; }
+  .df__grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px 16px; }
+  .df__full { grid-column: 1 / -1; }
+  .df__hp { position: absolute; left: -9999px; width: 1px; height: 1px; opacity: 0; }
+  .df__nav { display: flex; gap: 10px; justify-content: flex-end; flex-wrap: wrap; }
+  .df__back { transform: rotate(180deg); }
+  .df__alt a { color: var(--u-violeta); font-weight: 700; }
+  .df__state { display: grid; gap: 12px; justify-items: start; }
+  .df__state:focus { outline: none; }
+  .df__state-t { font-size: 1.5rem; font-weight: 800; letter-spacing: -.02em; color: var(--u-texto); }
+  .df__ico { width: 56px; height: 56px; border-radius: 50%; display: grid; place-items: center; background: var(--u-violeta); color: #fff; animation: pop .6s var(--ease-back) both; }
+  .df__ico--err { background: #ffe9d9; color: var(--u-pin); }
+  @keyframes pop { from { transform: scale(.4); opacity: 0; } to { transform: none; opacity: 1; } }
+  .df__next { display: grid; gap: 10px; margin-top: 6px; }
+  .df__next li { display: flex; gap: 12px; align-items: center; font-size: var(--fs-small); color: var(--u-texto); }
+  .df__next b { width: 26px; height: 26px; border-radius: 50%; display: grid; place-items: center; background: var(--u-lavanda); color: var(--u-violeta); font-size: .8rem; flex: none; }
+  .df__state a { color: var(--u-violeta); font-weight: 700; }
+
+  /* Con JS: un paso a la vez */
+  :global(.js) .df .df__step:not(.is-cur) { display: none; }
+  :global(.js) .df .df__step.is-cur { animation: step-in .45s var(--ease-out) both; }
+  @keyframes step-in { from { opacity: 0; transform: translateX(14px); } to { opacity: 1; transform: none; } }
+  .df.is-done > :not([data-ok]):not([data-errbox]) { display: none !important; }
+  :global(html:not(.js)) .df__progress, :global(html:not(.js)) .df__nav [data-next], :global(html:not(.js)) .df__nav [data-prev] { display: none; }
+  :global(html:not(.js)) .df__nav [data-submit] { display: inline-flex !important; }
+  @media (max-width: 620px) {
+    .df__tipos, .df__grid { grid-template-columns: 1fr; }
+    .df__nav { justify-content: stretch; }
+    .df__nav .btn { flex: 1; }
+  }
+</style>
+
+<script>
+  import { submitHubspot, type HsField } from '../scripts/hubspot';
+  import { track } from '../scripts/analytics';
+
+  document.querySelectorAll<HTMLFormElement>('[data-df]').forEach(init);
+
+  function init(form: HTMLFormElement) {
+    const steps = [...form.querySelectorAll<HTMLFieldSetElement>('[data-step]')];
+    const prev = form.querySelector<HTMLButtonElement>('[data-prev]')!;
+    const next = form.querySelector<HTMLButtonElement>('[data-next]')!;
+    const submit = form.querySelector<HTMLButtonElement>('[data-submit]')!;
+    const label = form.querySelector<HTMLElement>('[data-step-label]')!;
+    const bar = form.querySelector<HTMLElement>('[data-bar]')!;
+    const ok = form.querySelector<HTMLElement>('[data-ok]')!;
+    const errbox = form.querySelector<HTMLElement>('[data-errbox]')!;
+    const source = form.dataset.source || 'desconocido';
+    let cur = 0, started = false;
+
+    // Preselección desde la URL: /contacto?tipo=gobierno&interes=movilidad-segura
+    const q = new URLSearchParams(location.search);
+    const tipo = q.get('tipo');
+    if (tipo) { const r = form.querySelector<HTMLInputElement>(`input[name="tipo"][value="${CSS.escape(tipo)}"]`); if (r) r.checked = true; }
+    q.getAll('interes').forEach((v) => { const el = form.querySelector<HTMLInputElement>(`input[name="interes"][value="${CSS.escape(v)}"]`); if (el) el.checked = true; });
+
+    function show(i: number) {
+      cur = i;
+      steps.forEach((s, k) => s.classList.toggle('is-cur', k === i));
+      prev.hidden = i === 0;
+      next.hidden = i === steps.length - 1;
+      submit.hidden = i !== steps.length - 1;
+      label.textContent = `Paso ${i + 1} de ${steps.length}`;
+      bar.style.setProperty('--p', String((i + 1) / steps.length));
+    }
+    show(0);
+
+    const setErr = (name: string, msg: string) => {
+      const p = form.querySelector<HTMLElement>(`[data-err="${name}"]`);
+      if (p) p.textContent = msg;
+      form.querySelectorAll<HTMLInputElement>(`[name="${name}"]`).forEach((el) => el.setAttribute('aria-invalid', msg ? 'true' : 'false'));
+    };
+    const val = (n: string) => (form.elements.namedItem(n) as HTMLInputElement | null)?.value.trim() ?? '';
+
+    function validate(i: number) {
+      const st: { first: HTMLElement | null } = { first: null };
+      const bad = (name: string, msg: string) => { setErr(name, msg); st.first ??= form.querySelector<HTMLElement>(`[name="${name}"]`); };
+      if (i === 0) {
+        const t = form.querySelector<HTMLInputElement>('input[name="tipo"]:checked');
+        t ? setErr('tipo', '') : bad('tipo', 'Elige una opción para continuar.');
+      }
+      if (i === 2) {
+        val('nombre').length >= 3 ? setErr('nombre', '') : bad('nombre', 'Escribe tu nombre y apellido.');
+        /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(val('email')) ? setErr('email', '') : bad('email', 'Ingresa un correo válido, por ejemplo nombre@municipio.gob.ar.');
+        val('organizacion').length >= 2 ? setErr('organizacion', '') : bad('organizacion', 'Escribe el nombre de tu organización.');
+        val('pais') ? setErr('pais', '') : bad('pais', 'Elige tu país.');
+        (form.elements.namedItem('consent') as HTMLInputElement).checked ? setErr('consent', '') : bad('consent', 'Necesitamos tu autorización para responderte.');
+      }
+      st.first?.focus();
+      return !st.first;
+    }
+
+    form.addEventListener('input', () => { if (!started) { started = true; track('demo_form_start', { form_source: source }); } }, { once: false });
+    // Avanza solo con clic o toque: con teclado las flechas cambian la opción sin saltar de paso
+    let pointer = false;
+    form.addEventListener('pointerdown', () => { pointer = true; });
+    form.addEventListener('keydown', () => { pointer = false; });
+    form.addEventListener('change', (e) => {
+      const t = e.target as HTMLInputElement;
+      if (t.name === 'tipo') setErr('tipo', '');
+      if (t.name === 'tipo' && pointer) { setTimeout(() => { if (cur === 0) { track('demo_form_step', { step: 2, form_source: source, org_type: t.value }); show(1); steps[1].querySelector<HTMLElement>('input')?.focus(); } }, 280); }
+    });
+    next.addEventListener('click', () => {
+      if (!validate(cur)) return;
+      track('demo_form_step', { step: cur + 2, form_source: source });
+      show(cur + 1);
+      steps[cur].querySelector<HTMLElement>('input, textarea, select')?.focus();
+    });
+    prev.addEventListener('click', () => show(Math.max(0, cur - 1)));
+
+    async function send() {
+      if (!validate(0)) { show(0); return; }
+      if (!validate(2)) { show(2); return; }
+      if (val('empresa_web')) return; // trampa para bots
+      const nombre = val('nombre').split(/\s+/);
+      const intereses = [...form.querySelectorAll<HTMLInputElement>('input[name="interes"]:checked')].map((i) => i.value);
+      const tipoSel = form.querySelector<HTMLInputElement>('input[name="tipo"]:checked')!.value;
+      const fields: HsField[] = [
+        { name: 'firstname', value: nombre[0] },
+        { name: 'lastname', value: nombre.slice(1).join(' ') || '-' },
+        { name: 'email', value: val('email') },
+        { name: 'company', value: val('organizacion') },
+        { name: 'country', value: val('pais') },
+        { name: 'phone', value: val('telefono') },
+        { name: 'urbe_tipo_organizacion', value: tipoSel },
+        { name: 'urbe_interes', value: intereses.join(';') },
+        { name: 'message', value: val('mensaje') },
+        { name: 'urbe_origen_formulario', value: source },
+      ].filter((f) => f.value);
+      submit.setAttribute('aria-busy', 'true');
+      submit.querySelector('.btn__label')!.textContent = 'Enviando…';
+      track('demo_form_submit', { form_source: source, org_type: tipoSel, interests: intereses.join(',') });
+      const res = await submitHubspot('demo', fields, val('_consent_text'));
+      submit.removeAttribute('aria-busy');
+      submit.querySelector('.btn__label')!.textContent = 'Enviar solicitud';
+      if (res.ok) {
+        form.classList.add('is-done');
+        ok.hidden = false; errbox.hidden = true;
+        form.querySelector<HTMLElement>('[data-sim]')!.hidden = !res.simulated;
+        ok.focus();
+        track('demo_form_success', { form_source: source, org_type: tipoSel, simulated: !!res.simulated });
+        track('generate_lead', { form_source: source });
+      } else {
+        form.classList.add('is-done');
+        errbox.hidden = false; ok.hidden = true;
+        errbox.focus();
+        track('demo_form_error', { form_source: source, error: res.message, status: res.status });
+      }
+    }
+    form.addEventListener('submit', (e) => { e.preventDefault(); send(); });
+    form.querySelector('[data-retry]')!.addEventListener('click', () => { form.classList.remove('is-done'); errbox.hidden = true; show(2); });
+
+    new IntersectionObserver(([e], io) => { if (e.isIntersecting) { track('demo_form_view', { form_source: source }); io.disconnect(); } }, { threshold: 0.4 }).observe(form);
+  }
+</script>

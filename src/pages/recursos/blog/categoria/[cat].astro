@@ -1,0 +1,17 @@
+---
+import Base from '../../../../layouts/Base.astro';
+import PageHero from '../../../../components/PageHero.astro';
+import BlogIndex from '../../../../components/BlogIndex.astro';
+import CtaBand from '../../../../components/CtaBand.astro';
+import { getPosts, catLabel } from '../../../../lib/blog';
+import { blogCategories } from '../../../../data/nav';
+export function getStaticPaths() { return blogCategories.map((c) => ({ params: { cat: c.slug } })); }
+const { cat } = Astro.params as { cat: string };
+const posts = (await getPosts()).filter((p) => p.data.category === cat);
+const label = catLabel(cat);
+---
+<Base title={`${label} · Blog`} description={`Artículos de Urbetrack sobre ${label.toLowerCase()}: guías, casos y recomendaciones con fuentes.`} noindex={posts.length === 0}>
+  <PageHero crumbs={[{ href: '/', label: 'Inicio' }, { href: '/recursos/blog', label: 'Blog' }, { label }]} kicker="Blog · Categoría" light="Artículos sobre" bold={`${label.toLowerCase()}.`} />
+  <BlogIndex posts={posts} current={cat} />
+  <CtaBand source={`blog-${cat}`} id="demo-blog-cat" />
+</Base>

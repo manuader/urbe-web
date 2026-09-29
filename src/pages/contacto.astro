@@ -1,0 +1,74 @@
+---
+import Base from '../layouts/Base.astro';
+import DemoForm from '../components/DemoForm.astro';
+import Icon from '../components/Icon.astro';
+import Evidence from '../components/Evidence.astro';
+import { site, offices } from '../data/site';
+const ld = { '@context': 'https://schema.org', '@type': 'ContactPage', name: 'Contacto y demo · Urbetrack', url: 'https://urbetrack.com/contacto/' };
+---
+<Base title="Solicitar demo y contacto" description="Solicita una demo de Urbetrack sobre un caso como el tuyo o escríbenos. Oficinas en Buenos Aires, Zapopan, Bogotá, Santiago y Madrid." jsonLd={[ld]}>
+  <section class="ct sf-lavanda">
+    <div class="wrap ct__grid">
+      <div class="ct__copy">
+        <nav aria-label="Migas de pan" class="in"><ol class="crumbs" role="list"><li><a href="/">Inicio</a></li><li><span aria-current="page">Contacto</span></li></ol></nav>
+        <p class="kicker in">Solicitar demo</p>
+        <h1 class="t-mix t-h1 ct__t">
+          <span class="rv-line in"><span style="--d:.06s">Cuéntanos tu operación.</span></span>
+          <span class="rv-line in"><span style="--d:.14s"><b class="v">Te mostramos cómo se vería.</b></span></span>
+        </h1>
+        <hr class="rule in" style="--d:.3s" />
+        <p class="t-lead in" style="--d:.34s">Tres pasos, menos de un minuto. Un especialista de tu sector te contacta para coordinar una demo sobre casos como el tuyo.</p>
+        <ul class="ct__why in" role="list" style="--d:.42s">
+          <li><Icon name="check" size={20} />Sin presentaciones genéricas: partimos de tu operación</li>
+          <li><Icon name="check" size={20} />Qué verías, qué se certifica y cómo se implementa</li>
+          <li><Icon name="check" size={20} />Modalidades de contratación para sector público y empresas</li>
+        </ul>
+        <div class="ct__direct in" style="--d:.5s">
+          <a href={`mailto:${site.email}`}><Icon name="mail" size={20} />{site.email}</a>
+          <a href={`tel:${site.phoneHref}`}><Icon name="phone" size={20} />{site.phone}</a>
+        </div>
+        <p class="t-small t-muted in" style="--d:.55s">¿Ya eres cliente? Ingresa a la plataforma en <a href={site.loginUrl} rel="noopener">red.urbetrack.com</a> o contacta a la Mesa de Ayuda 24x7 por los canales de tu contrato.</p>
+      </div>
+      <div class="in" style="--d:.2s"><DemoForm id="demo-contacto" source="contacto" /></div>
+    </div>
+  </section>
+  <section class="section--tight sf-blanco" aria-labelledby="ct-of">
+    <div class="wrap">
+      <h2 class="t-h3 of__t" id="ct-of">Oficinas</h2>
+      <ul class="of" role="list">
+        {offices.map((o) => (
+          <li class="card">
+            <p class="of__c"><img src={o.flag} alt="" width="22" height="22" loading="lazy" />{o.country}</p>
+            <p class="t-small"><b>{o.city}</b><br />{o.address}</p>
+            <a class="t-small" href={`tel:${o.phone.replace(/\s/g, '')}`}>{o.phone}</a>
+            <Evidence ev={o.evidence} short />
+          </li>
+        ))}
+      </ul>
+      <p class="t-small t-muted of__rrhh">Búsquedas laborales: <a href="/empresa#trabaja">Trabaja con nosotros</a> · rrhh@urbetrack.com</p>
+    </div>
+  </section>
+</Base>
+<style>
+  .ct { padding: calc(var(--nav-h) + clamp(36px, 5vw, 80px)) 0 clamp(56px, 6vw, 96px); }
+  .ct__grid { display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 7fr); gap: clamp(40px, 6vw, 96px); align-items: start; }
+  .ct__copy { display: grid; gap: 22px; justify-items: start; }
+  .ct__t { font-size: clamp(2.1rem, 1.2rem + 2.8vw, 3.8rem); }
+  .ct__why { display: grid; gap: 10px; }
+  .ct__why li { display: flex; gap: 10px; align-items: flex-start; font-size: var(--fs-small); color: var(--u-texto); }
+  .ct__why :global(svg) { color: var(--u-violeta); flex: none; }
+  .ct__direct { display: grid; gap: 8px; }
+  .ct__direct a { display: inline-flex; gap: 10px; align-items: center; font-weight: 700; color: var(--u-violeta); text-decoration: none; }
+  .ct__direct a:hover { text-decoration: underline; }
+  .ct__copy .t-muted a { color: var(--u-violeta); font-weight: 600; }
+  .of__t { color: var(--u-texto); margin-bottom: 20px; }
+  .of { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 12px; }
+  .of li { display: grid; gap: 8px; padding: 20px; justify-items: start; align-content: start; }
+  .of__c { display: flex; align-items: center; gap: 8px; font-weight: 800; color: var(--u-texto); }
+  .of__c img { border-radius: 50%; }
+  .of a { color: var(--u-violeta); font-weight: 600; text-decoration: none; }
+  .of__rrhh { margin-top: 20px; }
+  .of__rrhh a { color: var(--u-violeta); font-weight: 600; }
+  @media (max-width: 1000px) { .ct__grid { grid-template-columns: 1fr; } .of { grid-template-columns: 1fr 1fr; } }
+  @media (max-width: 560px) { .of { grid-template-columns: 1fr; } }
+</style>

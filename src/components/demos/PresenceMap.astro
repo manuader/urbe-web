@@ -1,0 +1,69 @@
+---
+/**
+ * Presencia territorial: mapa de puntos de Iberoamérica con las cinco oficinas.
+ * Los arcos salen de la casa central (Buenos Aires) y se dibujan al entrar en pantalla.
+ * Solo se muestran países con oficina verificable; no se sugieren otros mercados.
+ */
+import geo from '../../data/geo/iberoamerica.json';
+const on = new Set(['AR', 'MX', 'CO', 'CL', 'ES']);
+const r1 = (n: number) => Math.round(n * 10) / 10;
+// Puntos en coordenadas relativas (m dx dy h0): mismo dibujo, ~40 % menos de peso
+const rel = (pts: number[][]) => {
+  const s = [...pts].sort((a, b) => a[1] - b[1] || a[0] - b[0]);
+  let px = 0, py = 0, out = '';
+  s.forEach((p, i) => {
+    const x = r1(p[0]), y = r1(p[1]);
+    out += i === 0 ? `M${x} ${y}h0` : `m${r1(x - px)} ${r1(y - py)}h0`;
+    px = x; py = y;
+  });
+  return out;
+};
+const base = rel(geo.dots.filter((d) => !d[2]) as number[][]);
+const lit = rel(geo.dots.filter((d) => on.has(d[2] as string)) as number[][]);
+const hq = geo.offices.find((o) => o.id === 'ar')!;
+const arcs = geo.offices.filter((o) => o.id !== 'ar').map((o) => {
+  const [x1, y1] = hq.xy; const [x2, y2] = o.xy;
+  const mx = (x1 + x2) / 2, my = (y1 + y2) / 2;
+  const dx = x2 - x1, dy = y2 - y1, len = Math.hypot(dx, dy);
+  let nx = -dy / len, ny = dx / len;
+  if (ny > 0) { nx = -nx; ny = -ny; } // el arco siempre se curva hacia arriba
+  const k = Math.min(0.3, 60 / len + 0.12);
+  return { id: o.id, d: `M${x1} ${y1} Q${r1(mx + nx * len * k)} ${r1(my + ny * len * k)} ${x2} ${y2}` };
+});
+---
+<figure class="pm" data-pm>
+  <svg viewBox="130 40 720 560" role="img" aria-labelledby="pm-t">
+    <title id="pm-t">Mapa de oficinas de Urbetrack: Buenos Aires (casa central), Zapopan, Bogotá, Santiago y Madrid</title>
+    <path d={base} class="pm__dot" />
+    <path d={lit} class="pm__dot pm__dot--on" />
+    {arcs.map((a, i) => <path d={a.d} class="pm__arc" pathLength="1" style={`--d:${0.2 + i * 0.18}s`} />)}
+    {geo.offices.map((o) => (
+      <g class:list={['pm__off', { 'pm__off--hq': o.id === 'ar' }]} transform={`translate(${o.xy[0]} ${o.xy[1]})`}>
+        <circle class="pm__pulse" r="14" />
+        <circle class="pm__pin" r={o.id === 'ar' ? 7 : 5.5} />
+      </g>
+    ))}
+  </svg>
+  <figcaption class="sr-only">Oficinas en Argentina, México, Colombia, Chile y España.</figcaption>
+</figure>
+<style>
+  .pm svg { width: 100%; height: auto; overflow: hidden; }
+  .pm__dot { fill: none; stroke: #d8d4e1; stroke-width: 4.2; stroke-linecap: round; }
+  .pm__dot--on { stroke: var(--u-violeta-claro); }
+  .pm__arc { fill: none; stroke: var(--u-violeta); stroke-width: 1.6; stroke-dasharray: 1; stroke-dashoffset: 1; opacity: .8; }
+  .pm.is-in .pm__arc { stroke-dashoffset: 0; transition: stroke-dashoffset 1.6s var(--ease-io) var(--d); }
+  .pm__pin { fill: var(--u-violeta); stroke: #fff; stroke-width: 2.5; }
+  .pm__off--hq .pm__pin { fill: var(--u-pin); }
+  .pm__pulse { fill: none; stroke: var(--u-violeta); stroke-width: 1.5; opacity: 0; transform-box: fill-box; transform-origin: center; }
+  .pm__off--hq .pm__pulse { stroke: var(--u-pin); }
+  .pm.is-in .pm__pulse { animation: pm-pulse 2.8s var(--ease-out) infinite; }
+  .pm.is-in .pm__off:nth-child(odd) .pm__pulse { animation-delay: 1.2s; }
+  @keyframes pm-pulse { 0% { opacity: .9; transform: scale(.4); } 100% { opacity: 0; transform: scale(1.8); } }
+  @media (prefers-reduced-motion: reduce) { .pm__arc { stroke-dashoffset: 0; } .pm__pulse { display: none; } }
+</style>
+<script>
+  document.querySelectorAll<HTMLElement>('[data-pm]').forEach((el) => {
+    if (matchMedia('(prefers-reduced-motion: reduce)').matches) { el.classList.add('is-in'); return; }
+    new IntersectionObserver(([e], io) => { if (e.isIntersecting) { el.classList.add('is-in'); io.disconnect(); } }, { threshold: 0.35 }).observe(el);
+  });
+</script>

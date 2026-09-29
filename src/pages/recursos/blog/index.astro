@@ -1,0 +1,15 @@
+---
+import Base from '../../../layouts/Base.astro';
+import PageHero from '../../../components/PageHero.astro';
+import BlogIndex from '../../../components/BlogIndex.astro';
+import CtaBand from '../../../components/CtaBand.astro';
+import { getPosts } from '../../../lib/blog';
+const posts = await getPosts();
+const ld = { '@context': 'https://schema.org', '@type': 'Blog', name: 'Blog de Urbetrack', url: 'https://urbetrack.com/recursos/blog/', inLanguage: 'es', publisher: { '@id': 'https://urbetrack.com/#org' },
+  blogPost: posts.map((p) => ({ '@type': 'BlogPosting', headline: p.data.title, url: `https://urbetrack.com/recursos/blog/${p.id}/`, datePublished: p.data.date.toISOString().slice(0, 10) })) };
+---
+<Base title="Blog: gestión de residuos, flotas y tecnología" description="Guías y casos sobre certificación de servicios urbanos, rutas, incidencias, seguridad vial, combustible y contratación de tecnología para higiene urbana." jsonLd={[ld]}>
+  <PageHero crumbs={[{ href: '/', label: 'Inicio' }, { label: 'Recursos' }, { label: 'Blog' }]} kicker="Recursos · Blog" light="Ideas y casos para" bold="gestionar con evidencia." lead="Guías prácticas para quienes controlan, prestan o administran servicios urbanos y flotas. Cada dato con su fuente." />
+  <BlogIndex posts={posts} />
+  <CtaBand source="blog" light="¿Quieres verlo" bold="aplicado a tu operación?" id="demo-blog" />
+</Base>

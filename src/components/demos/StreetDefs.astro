@@ -1,0 +1,13 @@
+---
+/** Geometría de calles compartida por las demos de la home (se define una sola vez y se reutiliza con <use>). */
+import { almagro as g } from '../../lib/almagro';
+---
+<svg width="0" height="0" style="position:absolute;overflow:hidden" aria-hidden="true" focusable="false">
+  <defs>
+    <g id="alm-streets" fill="none" stroke-linecap="round" stroke-linejoin="round">
+      <path d={g.streets.res} style="stroke:var(--st-res,#fff);stroke-width:11" />
+      <path d={g.streets.pri} style="stroke:var(--st-pri,#fff);stroke-width:15" />
+      <path d={g.streets.av} style="stroke:var(--st-av,#fff);stroke-width:24" />
+    </g>
+  </defs>
+</svg>

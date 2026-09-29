@@ -1,0 +1,41 @@
+---
+/** Pasos numerados con una línea de avance que se llena con el scroll (sin secuestrarlo). */
+interface Props { items: { title: string; body: string }[] }
+const { items } = Astro.props;
+---
+<ol class="stp" role="list" data-steps>
+  <span class="stp__track" aria-hidden="true"><i data-fill></i></span>
+  {items.map((s, i) => (
+    <li class="stp__i" data-rv style={`--d:${i * 0.05}s`}>
+      <span class="stp__n num">{String(i + 1).padStart(2, '0')}</span>
+      <div>
+        <h3 class="t-h4">{s.title}</h3>
+        <p class="t-muted">{s.body}</p>
+      </div>
+    </li>
+  ))}
+</ol>
+<style>
+  .stp { position: relative; display: grid; gap: 8px; padding-left: 0; }
+  .stp__track { position: absolute; left: 23px; top: 24px; bottom: 24px; width: 2px; background: var(--linea); border-radius: 2px; overflow: hidden; }
+  .stp__track i { position: absolute; inset: 0; background: linear-gradient(180deg, var(--u-violeta), var(--u-pin)); transform-origin: top; transform: scaleY(var(--p, 0)); }
+  .stp__i { position: relative; display: grid; grid-template-columns: 48px 1fr; gap: 22px; padding: 18px 0; }
+  .stp__n { position: relative; z-index: 1; width: 48px; height: 48px; border-radius: 50%; display: grid; place-items: center; font-size: .85rem; font-weight: 800; color: var(--acento); background: var(--superficie); box-shadow: 0 0 0 1.5px var(--u-lavanda-2); }
+  .stp__i h3 { color: var(--ink); margin: 10px 0 6px; }
+  .stp__i p { max-width: 60ch; }
+</style>
+<script>
+  document.querySelectorAll<HTMLElement>('[data-steps]').forEach((el) => {
+    const fill = el.querySelector<HTMLElement>('[data-fill]')!;
+    if (matchMedia('(prefers-reduced-motion: reduce)').matches) { fill.style.setProperty('--p', '1'); return; }
+    let raf = 0;
+    const upd = () => {
+      raf = 0;
+      const r = el.getBoundingClientRect();
+      const p = Math.min(1, Math.max(0, (innerHeight * 0.6 - r.top) / r.height));
+      fill.style.setProperty('--p', p.toFixed(3));
+    };
+    addEventListener('scroll', () => { if (!raf) raf = requestAnimationFrame(upd); }, { passive: true });
+    upd();
+  });
+</script>

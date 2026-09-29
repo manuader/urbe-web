@@ -1,0 +1,356 @@
+---
+/**
+ * Demo del hero: "Operación en vivo".
+ * Explica en ~15 s el ciclo ver → decidir/actuar → certificar con funcionalidades reales:
+ * Monitor Online (unidad en ruta), RFID en contenedor (certificación), Incidencias con foto (Urbe+)
+ * y Cierre de Servicio. Es una simulación rotulada; el estado final se ve completo sin animación.
+ */
+import { almagro as g } from '../../lib/almagro';
+import Icon from '../Icon.astro';
+const alertIdx = 8;
+const conts = g.containers.map((c, i) => ({ ...c, alert: i === alertIdx }));
+---
+<figure class="ops" data-ops aria-labelledby="ops-cap">
+  <div class="ops__win">
+    <div class="ops__bar">
+      <span class="ops__app"><span class="ops__dot" aria-hidden="true"></span>Monitor Online</span>
+      <span class="ops__meta">Ruta R-12 · Unidad 24 · <span class="num" data-clock>09:10</span></span>
+      <span class="ops__sim">Simulación</span>
+      <button class="ops__pp" type="button" aria-pressed="false" aria-label="Pausar demostración" data-pp>
+        <Icon name="pause" size={14} class="i-pause" /><Icon name="play" size={14} class="i-play" />
+      </button>
+    </div>
+
+    <div class="ops__stage">
+      <svg class="ops__map" viewBox={g.viewBox} preserveAspectRatio="xMidYMid meet" aria-hidden="true" data-map>
+        <defs>
+          <linearGradient id="ops-grad" gradientUnits="userSpaceOnUse" x1={g.start.x} y1={g.start.y} x2={g.end.x} y2={g.end.y}>
+            <stop offset="0" stop-color="#6E4299" />
+            <stop offset="1" stop-color="#EE7824" />
+          </linearGradient>
+          <radialGradient id="ops-vig" cx="50%" cy="50%" r="70%">
+            <stop offset="60%" stop-color="#fff" stop-opacity="0" />
+            <stop offset="100%" stop-color="#fff" stop-opacity=".85" />
+          </radialGradient>
+        </defs>
+        <g data-world>
+          <rect x={g.box.minX - 800} y={g.box.minY - 800} width={g.box.W + 1600} height={g.box.H + 1600} fill="#F3F2F6" />
+          <use href="#alm-streets" />
+          <path d={g.route} class="rt rt--plan" data-plan />
+          <path d={g.route} class="rt rt--done" data-trail pathLength="1" />
+          <g class="conts">
+            {conts.map((c) => (
+              <g class:list={['ct', { 'ct--alert': c.alert }]} transform={`translate(${c.x} ${c.y})`} data-ct={c.f} data-id={c.id} data-alert={c.alert ? '' : undefined}>
+                <circle class="ct__ring" r="40" />
+                <rect class="ct__box" x="-26" y="-26" width="52" height="52" rx="12" />
+                <path class="ct__ok" d="M-11 1 -3 9 12 -8" />
+                <path class="ct__warn" d="M0 -12 V3 M0 11 V11.5" />
+              </g>
+            ))}
+          </g>
+          <g class="hq" transform={`translate(${g.hq.x} ${g.hq.y})`}>
+            <circle r="16" />
+          </g>
+          <g class="truck" data-truck transform={`translate(${g.end.x} ${g.end.y})`}>
+            <circle class="truck__halo" r="84" />
+            <circle class="truck__body" r="48" />
+            <path class="truck__ico" d="M-23 -11h24v20h-24zM1 -4h11l8 8v5h-19" />
+            <circle class="truck__w" cx="-13" cy="13" r="5" />
+            <circle class="truck__w" cx="12" cy="13" r="5" />
+          </g>
+        </g>
+        <rect x={g.box.minX} y={g.box.minY} width={g.box.W} height={g.box.H} fill="url(#ops-vig)" pointer-events="none" />
+      </svg>
+
+      <div class="ops__kpi glass">
+        <div class="kpi kpi--main">
+          <span class="kpi__l"><span class="kpi__opt">Contenedores </span>certificados</span>
+          <span class="kpi__v num"><b data-kcert>14</b><span>/14</span></span>
+        </div>
+        <div class="kpi kpi--prog">
+          <span class="kpi__l">Avance de ruta</span>
+          <span class="kpi__v num"><b data-kprog>100</b> %</span>
+          <span class="kpi__bar"><i data-kbar style="--p:1"></i></span>
+        </div>
+        <div class="kpi kpi--comp">
+          <span class="kpi__l">Compactación</span>
+          <span class="kpi__v num"><b data-kcomp>84</b> %</span>
+        </div>
+      </div>
+
+      <div class="ops__feed" aria-hidden="true">
+        <div class="alert glass glass--alerta" data-alert-card data-state="resolved">
+          <p class="alert__h"><span class="alert__ico"><Icon name="alert" size={16} /></span><span><b>Contenedor desbordado</b><small class="num">CT-{2480 + alertIdx * 3} · Av. Rivadavia · foto de cuadrilla</small></span></p>
+          <ol class="alert__steps">
+            <li data-s="1"><i></i>Incidencia registrada <span class="num">08:51</span></li>
+            <li data-s="2"><i></i>Asignada a cuadrilla 3 <span class="num">08:52</span></li>
+            <li data-s="3"><i></i>Resuelta con foto <span class="num">09:04</span></li>
+          </ol>
+        </div>
+        <div class="done glass" data-done>
+          <span class="done__ico"><Icon name="check" size={20} /></span>
+          <span><b>Cierre de servicio</b><small>14/14 certificados · 1 incidencia resuelta</small></span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <figcaption id="ops-cap" class="ops__cap">
+    <ol class="ops__steps" role="list">
+      <li data-step="0"><span class="num">01</span><b>Ver</b> dónde está cada unidad y qué hizo</li>
+      <li data-step="1"><span class="num">02</span><b>Actuar</b> sobre lo que requiere atención</li>
+      <li data-step="2"><span class="num">03</span><b>Certificar</b> cada servicio con evidencia</li>
+    </ol>
+    <p class="ops__src">Simulación ilustrativa sobre calles reales de Almagro, CABA (© OpenStreetMap). Unidad, horarios y valores de ejemplo.</p>
+  </figcaption>
+</figure>
+
+<style>
+  .ops { display: grid; gap: 18px; container-type: inline-size; }
+  .ops__win {
+    position: relative; border-radius: 20px; overflow: hidden; background: #fff;
+    box-shadow: 0 0 0 1px rgba(110, 66, 153, .16), 0 40px 80px -40px rgba(23, 27, 37, .45), 0 12px 30px -18px rgba(110, 66, 153, .35);
+  }
+  .ops__bar {
+    display: flex; align-items: center; gap: 14px; height: 48px; padding: 0 10px 0 18px;
+    border-bottom: 1px solid var(--u-linea); background: rgba(255, 255, 255, .96); font-size: var(--fs-micro);
+  }
+  .ops__app { display: inline-flex; align-items: center; gap: 8px; font-weight: 800; color: var(--u-texto); letter-spacing: .01em; }
+  .ops__dot { width: 8px; height: 8px; border-radius: 50%; background: var(--u-violeta); box-shadow: 0 0 0 3px var(--u-lavanda); }
+  .ops__meta { color: var(--u-texto-suave); font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .ops__sim { margin-left: auto; padding: 3px 9px; border-radius: 999px; border: 1px dashed var(--u-ceniza); color: var(--u-texto-suave); font-weight: 600; }
+  .ops__pp { width: 32px; height: 32px; border-radius: 8px; border: 0; background: var(--u-lavanda); color: var(--u-violeta); display: grid; place-items: center; }
+  .ops__pp .i-play { display: none; }
+  .ops__pp[aria-pressed="true"] .i-play { display: block; }
+  .ops__pp[aria-pressed="true"] .i-pause { display: none; }
+  .ops__stage { position: relative; aspect-ratio: 16 / 11.5; background: #f3f2f6; }
+  .ops__map { position: absolute; inset: 0; width: 100%; height: 100%; }
+
+  .rt { fill: none; stroke-linecap: round; stroke-linejoin: round; }
+  .rt--plan { stroke: #d9cde8; stroke-width: 13; }
+  .rt--done { stroke: url(#ops-grad); stroke-width: 17; stroke-dasharray: 1; stroke-dashoffset: 0; }
+  .ct__box { fill: #fff; stroke: #a9adb8; stroke-width: 4; transition: fill .35s, stroke .35s; }
+  .ct__ring { fill: none; stroke: var(--u-violeta); stroke-width: 4; opacity: 0; transform-box: fill-box; transform-origin: center; }
+  .ct__ok { fill: none; stroke: #fff; stroke-width: 5.5; stroke-linecap: round; stroke-linejoin: round; opacity: 0; }
+  .ct__warn { fill: none; stroke: #fff; stroke-width: 6; stroke-linecap: round; opacity: 0; }
+  .ct.is-ok .ct__box { fill: var(--u-violeta); stroke: var(--u-violeta); }
+  .ct.is-ok .ct__ok { opacity: 1; }
+  .ct.is-alert .ct__box { fill: var(--u-pin); stroke: var(--u-pin); }
+  .ct.is-alert .ct__warn { opacity: 1; }
+  .ct.is-alert .ct__ring { stroke: var(--u-pin); animation: ct-pulse 1.4s var(--ease-out) infinite; }
+  .ct.is-read .ct__ring { animation: ct-read .9s var(--ease-out) 1; }
+  @keyframes ct-read { from { opacity: .9; transform: scale(.6); } to { opacity: 0; transform: scale(1.9); } }
+  @keyframes ct-pulse { 0% { opacity: .9; transform: scale(.7); } 100% { opacity: 0; transform: scale(2.2); } }
+  .hq circle { fill: var(--u-tinta); stroke: #fff; stroke-width: 6; }
+  .truck__halo { fill: rgba(110, 66, 153, .14); transform-box: fill-box; transform-origin: center; animation: halo 2.4s var(--ease-out) infinite; }
+  @keyframes halo { 0% { transform: scale(.55); opacity: 1; } 100% { transform: scale(1.25); opacity: 0; } }
+  .truck__body { fill: var(--u-violeta); stroke: #fff; stroke-width: 7; filter: drop-shadow(0 6px 10px rgba(79, 45, 114, .45)); }
+  .truck__ico { fill: none; stroke: #fff; stroke-width: 4; stroke-linejoin: round; }
+  .truck__w { fill: var(--u-violeta); stroke: #fff; stroke-width: 3.5; }
+
+  .ops__kpi {
+    position: absolute; left: 12px; right: 12px; top: 12px; padding: 12px 16px;
+    display: grid; grid-template-columns: 1.15fr 1.2fr .8fr; gap: 16px; align-items: end;
+  }
+  .kpi { display: grid; gap: 2px; min-width: 0; }
+  .kpi + .kpi { padding-left: 16px; border-left: 1px solid var(--u-lavanda-2); }
+  .kpi__l { font-size: .75rem; font-weight: 700; letter-spacing: .02em; color: var(--u-texto-suave); line-height: 1.25; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .kpi__v { font-size: 1.35rem; font-weight: 800; color: var(--u-texto); letter-spacing: -.03em; line-height: 1.1; }
+  .kpi--main .kpi__v { color: var(--u-violeta); }
+  .kpi--main .kpi__v span { font-weight: 300; color: var(--u-texto-suave); font-size: .72em; }
+  .kpi--prog { grid-template-columns: auto 1fr; column-gap: 12px; align-items: center; }
+  .kpi--prog .kpi__l { grid-column: 1 / -1; }
+  .kpi__bar { height: 6px; border-radius: 6px; background: var(--u-lavanda-2); overflow: hidden; }
+  .kpi__bar i { display: block; height: 100%; width: 100%; background: var(--u-grad); transform-origin: left; transform: scaleX(var(--p, 0)); }
+  .ops__feed { position: absolute; right: 14px; bottom: 14px; width: min(56%, 300px); display: grid; gap: 10px; }
+  .alert { padding: 14px 16px; }
+  .alert__h { display: flex; gap: 10px; align-items: flex-start; }
+  .alert__ico { width: 30px; height: 30px; border-radius: 9px; background: #ffe9d9; color: var(--u-pin); display: grid; place-items: center; flex: none; }
+  .alert__h b { display: block; font-size: .86rem; font-weight: 800; color: var(--u-texto); line-height: 1.25; }
+  .alert__h small { display: block; font-size: .75rem; color: var(--u-texto-suave); font-weight: 600; line-height: 1.35; margin-top: 2px; }
+  .alert__steps { list-style: none; padding: 0; margin: 12px 0 0; display: grid; gap: 7px; }
+  .alert__steps li { display: flex; align-items: center; gap: 8px; font-size: .78rem; font-weight: 600; color: var(--u-texto-suave); opacity: .38; transition: opacity .4s, color .4s; }
+  .alert__steps li span { margin-left: auto; font-weight: 700; }
+  .alert__steps i { width: 14px; height: 14px; border-radius: 50%; border: 2px solid var(--u-ceniza); flex: none; transition: all .35s var(--ease-back); }
+  .alert[data-state="s1"] li[data-s="1"], .alert[data-state="s2"] li[data-s="1"], .alert[data-state="s2"] li[data-s="2"],
+  .alert[data-state="resolved"] li { opacity: 1; color: var(--u-texto); }
+  .alert[data-state="s1"] li[data-s="1"] i { border-color: var(--u-pin); background: var(--u-pin); }
+  .alert[data-state="s2"] li[data-s="1"] i, .alert[data-state="s2"] li[data-s="2"] i { border-color: var(--u-violeta); background: var(--u-violeta); }
+  .alert[data-state="resolved"] li i { border-color: var(--u-violeta); background: var(--u-violeta); }
+  .alert[data-state="resolved"] { box-shadow: var(--u-glow-v); background: linear-gradient(160deg, rgba(255, 255, 255, .95), rgba(239, 233, 246, .85)); }
+  .alert[data-state="resolved"] .alert__ico { background: var(--u-lavanda); color: var(--u-violeta); }
+  .done { display: flex; align-items: center; gap: 12px; padding: 12px 16px; }
+  .done__ico { width: 34px; height: 34px; border-radius: 50%; background: var(--u-violeta); color: #fff; display: grid; place-items: center; flex: none; }
+  .done b { display: block; font-size: .86rem; font-weight: 800; color: var(--u-texto); }
+  .done small { display: block; font-size: .75rem; font-weight: 600; color: var(--u-texto-suave); }
+
+  .ops__cap { display: grid; gap: 12px; }
+  .ops__steps { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
+  .ops__steps li {
+    position: relative; padding-top: 14px; font-size: var(--fs-small); color: var(--u-texto-suave); line-height: 1.4;
+    border-top: 2px solid var(--u-linea); transition: color .4s, border-color .4s;
+  }
+  .ops__steps li::before { content: ""; position: absolute; left: 0; top: -2px; height: 2px; width: 100%; background: var(--u-grad); transform: scaleX(var(--fill, 1)); transform-origin: left; }
+  .ops__steps span { display: block; font-size: .75rem; font-weight: 700; color: var(--u-violeta); letter-spacing: .08em; margin-bottom: 2px; }
+  .ops__steps b { color: var(--u-texto); font-weight: 800; }
+  .ops[data-playing] .ops__steps li { color: #9a9ca5; }
+  .ops[data-playing] .ops__steps li::before { transform: scaleX(0); }
+  .ops[data-playing] .ops__steps li.is-cur { color: var(--u-texto); }
+  .ops[data-playing] .ops__steps li.is-cur::before, .ops[data-playing] .ops__steps li.is-past::before { transform: scaleX(1); transition: transform .6s var(--ease-out); }
+  .ops__src { font-size: .75rem; color: var(--u-texto-suave); font-weight: 500; line-height: 1.45; }
+
+  @container (max-width: 560px) {
+    .ops__stage { aspect-ratio: 4 / 5; }
+    .ops__meta { display: none; }
+    .ops__kpi { grid-template-columns: 1fr 1fr; gap: 12px; padding: 10px 14px; }
+    .kpi--comp { display: none; }
+    .kpi__opt { display: none; }
+    .kpi__l { text-transform: capitalize; }
+    .alert { padding: 12px 14px; }
+    .alert__steps { margin-top: 8px; }
+    .alert__steps li { display: none; }
+    .alert[data-state="s0"] li[data-s="1"], .alert[data-state="s1"] li[data-s="1"], .alert[data-state="s2"] li[data-s="2"], .alert[data-state="resolved"] li[data-s="3"] { display: flex; }
+    .kpi__v { font-size: 1.2rem; }
+    .ops__feed { left: 12px; right: 12px; width: auto; bottom: 12px; }
+    .ops__steps { grid-template-columns: 1fr; gap: 0; }
+    .ops__steps li { padding: 10px 0 10px 44px; border-top: 0; border-left: 2px solid var(--u-linea); padding-left: 16px; }
+    .ops__steps li::before { top: 0; left: -2px; width: 2px; height: 100%; transform: scaleY(var(--fill, 1)); transform-origin: top; }
+    .ops[data-playing] .ops__steps li::before { transform: scaleY(0); }
+    .ops[data-playing] .ops__steps li.is-cur::before, .ops[data-playing] .ops__steps li.is-past::before { transform: scaleY(1); }
+    .ops__steps span { display: inline; margin-right: 8px; }
+  }
+</style>
+
+<script>
+  import { gsap } from 'gsap';
+
+  const root = document.querySelector<HTMLElement>('[data-ops]');
+  if (root) initOps(root);
+
+  function initOps(root: HTMLElement) {
+    const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (reduce) return; // el marcado ya representa el estado final completo
+
+    const svg = root.querySelector<SVGSVGElement>('[data-map]')!;
+    const world = root.querySelector<SVGGElement>('[data-world]')!;
+    const trail = root.querySelector<SVGPathElement>('[data-trail]')!;
+    const plan = root.querySelector<SVGPathElement>('[data-plan]')!;
+    const truck = root.querySelector<SVGGElement>('[data-truck]')!;
+    const cts = [...root.querySelectorAll<SVGGElement>('[data-ct]')];
+    const kcert = root.querySelector<HTMLElement>('[data-kcert]')!;
+    const kprog = root.querySelector<HTMLElement>('[data-kprog]')!;
+    const kbar = root.querySelector<HTMLElement>('[data-kbar]')!;
+    const kcomp = root.querySelector<HTMLElement>('[data-kcomp]')!;
+    const clock = root.querySelector<HTMLElement>('[data-clock]')!;
+    const alertCard = root.querySelector<HTMLElement>('[data-alert-card]')!;
+    const done = root.querySelector<HTMLElement>('[data-done]')!;
+    const steps = [...root.querySelectorAll<HTMLElement>('[data-step]')];
+    const pp = root.querySelector<HTMLButtonElement>('[data-pp]')!;
+    const total = plan.getTotalLength();
+
+    // En contenedores verticales se gira el mundo 90° para que la ruta entre completa
+    const baseVB = svg.getAttribute('viewBox')!.split(' ').map(Number);
+    function fit() {
+      const r = svg.getBoundingClientRect();
+      const portrait = r.height > r.width * 1.05;
+      const [x, y, w, h] = baseVB;
+      if (portrait) {
+        const cx = x + w / 2, cy = y + h / 2;
+        world.setAttribute('transform', `rotate(90 ${cx} ${cy})`);
+        svg.setAttribute('viewBox', `${cx - h / 2} ${cy - w / 2} ${h} ${w}`);
+      } else {
+        world.removeAttribute('transform');
+        svg.setAttribute('viewBox', baseVB.join(' '));
+      }
+    }
+    fit();
+    new ResizeObserver(fit).observe(root);
+
+    const alertIdx = cts.findIndex((c) => c.hasAttribute('data-alert'));
+    const alertF = Number(cts[alertIdx].dataset.ct);
+    const state = { p: 0 };
+    const START_MIN = 8 * 60 + 30; // 08:30
+    const END_MIN = 9 * 60 + 10; // 09:10
+    const fmt = (m: number) => `${String(Math.floor(m / 60)).padStart(2, '0')}:${String(Math.floor(m % 60)).padStart(2, '0')}`;
+
+    function setStep(i: number) {
+      steps.forEach((s, k) => { s.classList.toggle('is-cur', k === i); s.classList.toggle('is-past', k < i); });
+    }
+
+    function reset() {
+      state.p = 0;
+      cts.forEach((c) => c.classList.remove('is-ok', 'is-read', 'is-alert'));
+      alertCard.dataset.state = 's0';
+      gsap.set(alertCard, { autoAlpha: 0, y: 16 });
+      gsap.set(done, { autoAlpha: 0, y: 16 });
+      render();
+      setStep(0);
+    }
+
+    let certified = 0;
+    function render() {
+      const p = state.p;
+      trail.style.strokeDashoffset = String(1 - p);
+      const pt = plan.getPointAtLength(p * total);
+      truck.setAttribute('transform', `translate(${pt.x.toFixed(1)} ${pt.y.toFixed(1)})`);
+      certified = 0;
+      cts.forEach((c, i) => {
+        const f = Number(c.dataset.ct);
+        if (i === alertIdx) {
+          if (c.classList.contains('is-ok')) certified++;
+          if (p >= f && !c.classList.contains('is-alert') && !c.classList.contains('is-ok')) c.classList.add('is-alert');
+          return;
+        }
+        if (p >= f) {
+          if (!c.classList.contains('is-ok')) { c.classList.add('is-ok', 'is-read'); }
+          certified++;
+        }
+      });
+      kcert.textContent = String(certified);
+      kprog.textContent = String(Math.round(p * 100));
+      kbar.style.setProperty('--p', p.toFixed(3));
+      kcomp.textContent = String(Math.round(18 + p * 66));
+      clock.textContent = fmt(START_MIN + p * (END_MIN - START_MIN - 6));
+    }
+
+    const tl = gsap.timeline({ repeat: -1, repeatDelay: 0.6, paused: true, onRepeat: reset });
+    tl.call(reset)
+      .fromTo(plan, { opacity: 0 }, { opacity: 1, duration: 0.6 }, 0)
+      .to(state, { p: alertF, duration: 6.2, ease: 'none', onUpdate: render }, 0.5)
+      // 02 · Actuar: la incidencia aparece, se asigna y se resuelve mientras la unidad sigue
+      .call(() => { setStep(1); alertCard.dataset.state = 's1'; }, undefined, '>')
+      .to(alertCard, { autoAlpha: 1, y: 0, duration: 0.55, ease: 'back.out(1.4)' }, '<')
+      .to(state, { p: 0.86, duration: 4.4, ease: 'none', onUpdate: render }, '<')
+      .call(() => { alertCard.dataset.state = 's2'; }, undefined, '<1.6')
+      .call(() => {
+        alertCard.dataset.state = 'resolved';
+        const c = cts[alertIdx];
+        c.classList.remove('is-alert'); c.classList.add('is-ok', 'is-read');
+        render();
+      }, undefined, '<1.9')
+      // 03 · Certificar: termina la ruta y se cierra el servicio
+      .to(state, { p: 1, duration: 1.7, ease: 'power1.out', onUpdate: render })
+      .call(() => setStep(2))
+      .to(alertCard, { autoAlpha: 0, y: -10, duration: 0.4 }, '<')
+      .to(done, { autoAlpha: 1, y: 0, duration: 0.55, ease: 'back.out(1.4)' }, '<0.15')
+      .to({}, { duration: 3.2 })
+      .to([done, trail], { autoAlpha: 0, duration: 0.5 })
+      .set(trail, { autoAlpha: 1 });
+
+    root.dataset.playing = '';
+    reset();
+    (window as unknown as { __opsTl?: gsap.core.Timeline }).__opsTl = tl; // gancho para QA visual
+
+    // Solo corre cuando está a la vista y la pestaña está activa
+    let userPaused = false, visible = false;
+    const sync = () => (visible && !userPaused && !document.hidden ? tl.play() : tl.pause());
+    new IntersectionObserver(([e]) => { visible = e.isIntersecting; sync(); }, { threshold: 0.35 }).observe(root);
+    document.addEventListener('visibilitychange', sync);
+    pp.addEventListener('click', () => {
+      userPaused = !userPaused;
+      pp.setAttribute('aria-pressed', String(userPaused));
+      pp.setAttribute('aria-label', userPaused ? 'Reanudar demostración' : 'Pausar demostración');
+      sync();
+    });
+  }
+</script>

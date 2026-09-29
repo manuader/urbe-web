@@ -1,0 +1,48 @@
+---
+import SectionHead from '../SectionHead.astro';
+import CaseCard from '../CaseCard.astro';
+import Evidence from '../Evidence.astro';
+import Icon from '../Icon.astro';
+import { cases } from '../../data/cases';
+import { quote, logoWall } from '../../data/site';
+const featured = ['gcba', 'solbayres', 'quilmes', 'irapuato'].map((s) => cases.find((c) => c.slug === s)!).filter(Boolean);
+---
+<section class="section evi sf-estudio" id="casos" aria-labelledby="evi-t">
+  <div class="wrap">
+    <figure class="evi__quote" data-rv>
+      <blockquote><p>“{quote.text}”</p></blockquote>
+      <figcaption>
+        <span><b>{quote.author}</b> · {quote.role}</span>
+        <Evidence ev={quote.evidence} />
+      </figcaption>
+    </figure>
+
+    <div class="evi__head">
+      <SectionHead id="evi-t" kicker="Evidencia" light="Operaciones reales," bold="con fuente a la vista." lead="Cada caso muestra qué se implementó, qué resultado se informa y quién lo afirma: un organismo público, la prensa o la propia empresa." />
+      <a class="link-arrow" href="/casos"><span>Ver todos los casos</span><Icon name="arrow" /></a>
+    </div>
+
+    <ul class="evi__grid" role="list">
+      {featured.map((c, i) => <li data-rv style={`--d:${i * 0.07}s`}><CaseCard c={c} /></li>)}
+    </ul>
+
+    <div class="evi__logos">
+      <p class="t-small t-muted">Organizaciones cuyos logos publica urbetrack.com. No implica aval de cada organización.</p>
+      <ul class="logos" role="list">
+        {logoWall.map((l) => <li><img src={l.src} alt={l.alt} loading="lazy" decoding="async" width="160" height="60" /></li>)}
+      </ul>
+    </div>
+  </div>
+</section>
+<style>
+  .evi__quote { max-width: 1100px; display: grid; gap: 24px; margin-bottom: clamp(72px, 8vw, 128px); }
+  .evi__quote blockquote { margin: 0; }
+  .evi__quote p { font-size: clamp(1.75rem, 1.1rem + 2.4vw, 3.3rem); font-weight: 300; line-height: 1.16; letter-spacing: -.025em; color: var(--u-texto); text-wrap: balance; }
+  .evi__quote figcaption { display: flex; flex-wrap: wrap; align-items: center; gap: 12px 18px; font-size: var(--fs-small); color: var(--u-texto-suave); padding-top: 20px; border-top: 1px solid var(--u-linea); }
+  .evi__quote b { color: var(--u-texto); }
+  .evi__head { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: end; gap: 24px; margin-bottom: 40px; }
+  .evi__grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 16px; }
+  .evi__logos { margin-top: clamp(56px, 6vw, 88px); display: grid; gap: 16px; }
+  @media (max-width: 1100px) { .evi__grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+  @media (max-width: 600px) { .evi__grid { grid-template-columns: 1fr; } }
+</style>

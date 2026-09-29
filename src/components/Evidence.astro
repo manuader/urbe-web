@@ -1,0 +1,15 @@
+---
+/** Etiqueta de evidencia obligatoria junto a cada cifra, caso o resultado. Legible sin hover. */
+import type { Evidence } from '../data/types';
+interface Props { ev: Evidence; short?: boolean; class?: string }
+const { ev, short = false, class: cls } = Astro.props;
+const LABEL = { comprobado: 'Comprobado', declarado: 'Declarado', validar: 'A validar', ilustrativo: 'Ilustrativo' } as const;
+const first = ev.sources?.find((s) => s.url);
+const text = short || !ev.note ? LABEL[ev.level] : `${LABEL[ev.level]} · ${ev.note}`;
+const title = ev.sources?.map((s) => s.label).join(' · ');
+---
+{first ? (
+  <a class:list={['ev', `ev--${ev.level}`, cls]} href={first.url} rel="noopener" target="_blank" title={title ? `Fuente: ${title}` : undefined}>{text}<span class="sr-only"> (abre la fuente en una pestaña nueva)</span></a>
+) : (
+  <span class:list={['ev', `ev--${ev.level}`, cls]} title={title}>{text}</span>
+)}

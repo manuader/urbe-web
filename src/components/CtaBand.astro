@@ -1,0 +1,22 @@
+---
+import DemoForm from './DemoForm.astro';
+interface Props { light?: string; bold?: string; lead?: string; preset?: { tipo?: string; interes?: string[] }; source: string; id?: string }
+const { light = 'Veamos cómo funcionaría', bold = 'en tu operación.', lead = 'Cuéntanos qué necesitas resolver. Un especialista de tu sector te muestra la plataforma con casos como el tuyo.', preset, source, id = 'demo-cta' } = Astro.props;
+---
+<section class="section ctab sf-lavanda" id="contacto" aria-labelledby={`${id}-h`}>
+  <div class="wrap ctab__grid">
+    <div class="ctab__copy">
+      <p class="kicker">Siguiente paso</p>
+      <h2 class="t-mix t-h2" id={`${id}-h`} data-rv>{light} <b class="v">{bold}</b></h2>
+      <hr class="rule" data-rv />
+      <p class="t-lead" data-rv>{lead}</p>
+    </div>
+    <div data-rv style="--d:.1s"><DemoForm id={id} preset={preset} source={source} /></div>
+  </div>
+</section>
+<style>
+  .ctab__grid { display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 7fr); gap: clamp(40px, 6vw, 96px); align-items: start; }
+  .ctab__copy { display: grid; gap: 22px; justify-items: start; position: sticky; top: calc(var(--nav-h) + 40px); }
+  .ctab__copy .t-mix { max-width: 15ch; }
+  @media (max-width: 1000px) { .ctab__grid { grid-template-columns: 1fr; } .ctab__copy { position: static; } }
+</style>

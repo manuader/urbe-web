@@ -1,0 +1,156 @@
+---
+import Base from '../../layouts/Base.astro';
+import PageHero from '../../components/PageHero.astro';
+import Evidence from '../../components/Evidence.astro';
+import CaseCard from '../../components/CaseCard.astro';
+import SolutionCard from '../../components/SolutionCard.astro';
+import CtaBand from '../../components/CtaBand.astro';
+import Icon from '../../components/Icon.astro';
+import { cases } from '../../data/cases';
+import { solutions } from '../../data/solutions';
+import { sectors } from '../../data/sectors';
+import { site, VERIFIED_AT } from '../../data/site';
+import type { CaseStudy, Solution } from '../../data/types';
+
+export function getStaticPaths() {
+  return cases.map((c) => ({ params: { slug: c.slug }, props: { c } }));
+}
+const { c } = Astro.props as { c: CaseStudy };
+const COUNTRY = { AR: 'Argentina', MX: 'México', CO: 'Colombia', CL: 'Chile', ES: 'España' } as const;
+const sector = sectors.find((x) => x.slug === c.sector);
+const sols = c.solutions.map((x) => solutions.find((y) => y.slug === x)).filter((x): x is Solution => !!x);
+const others = cases.filter((x) => x.slug !== c.slug && (x.sector === c.sector || x.featured)).slice(0, 3);
+const words = c.summary.replace(/\.$/, '').split(' ');
+const cut = Math.max(3, Math.ceil(words.length * 0.55));
+const articleLd = {
+  '@context': 'https://schema.org', '@type': 'Article', headline: `${c.client}: ${c.summary}`, about: c.client,
+  author: { '@id': `${site.url}/#org` }, publisher: { '@id': `${site.url}/#org` }, dateModified: VERIFIED_AT, image: new URL(c.image, site.url).href,
+  citation: c.sources.filter((s) => s.url).map((s) => ({ '@type': 'CreativeWork', name: s.label, url: s.url })),
+};
+---
+<Base title={`Caso ${c.client}`} description={`${c.summary} ${c.place}, ${COUNTRY[c.country]}, ${c.period}.`.slice(0, 160)} image={c.image} type="article" modified={VERIFIED_AT} jsonLd={[articleLd]}>
+  <PageHero
+    crumbs={[{ href: '/', label: 'Inicio' }, { href: '/casos', label: 'Casos' }, { label: c.client }]}
+    kicker={`${c.place} · ${COUNTRY[c.country]} · ${c.period}`}
+    light={words.slice(0, cut).join(' ')}
+    bold={words.slice(cut).join(' ') + '.'}
+    image={c.image}
+    imageAlt={c.imageAlt}
+  >
+    <div slot="extra" class="case__meta in" style="--d:.4s">
+      {c.logo && <img src={c.logo} alt={c.client} width="140" height="50" class="case__logo" />}
+      <p class="t-small"><b>Cliente:</b> {c.client}</p>
+      <p class="t-small"><b>Nivel de evidencia del caso:</b></p>
+      <Evidence ev={{ ...c.evidence, sources: undefined }} />
+    </div>
+  </PageHero>
+
+  {c.results.length > 0 && (
+    <section class="res sf-blanco" aria-label="Resultados">
+      <div class="wrap">
+        <ul class="res__list" role="list">
+          {c.results.map((r, i) => (
+            <li data-rv style={`--d:${i * 0.07}s`}>
+              {r.value ? <p class="res__v num"><span class="p">{r.prefix}</span><b>{r.value}</b><small>{r.suffix}</small></p> : <p class="res__icon"><Icon name="check" size={30} /></p>}
+              <p class="res__l">{r.label}</p>
+              <Evidence ev={r.evidence} />
+            </li>
+          ))}
+        </ul>
+      </div>
+    </section>
+  )}
+
+  <section class="section sf-estudio" aria-labelledby="c-body">
+    <div class="wrap case__grid">
+      <article class="case__body">
+        <h2 class="t-h3" id="c-body">El desafío</h2>
+        <p class="case__p">{c.challenge}</p>
+        <h2 class="t-h3">Qué se implementó</h2>
+        <ul class="checks">{c.implemented.map((i) => <li>{i}</li>)}</ul>
+        {c.quote && (
+          <figure class="case__quote">
+            <blockquote><p>“{c.quote.text}”</p></blockquote>
+            <figcaption><b>{c.quote.author}</b> · {c.quote.role}<Evidence ev={c.quote.evidence} /></figcaption>
+          </figure>
+        )}
+        {c.context && (
+          <aside class="case__ctx" aria-label="Contexto">
+            <p class="kicker kicker--muted">Contexto</p>
+            <p>{c.context}</p>
+          </aside>
+        )}
+      </article>
+      <aside class="case__side">
+        <div class="case__box">
+          <p class="kicker kicker--muted">Fuentes</p>
+          <ol class="case__src" role="list">
+            {c.sources.map((s) => <li>{s.url ? <a href={s.url} rel="noopener" target="_blank">{s.label}<Icon name="external" size={14} /></a> : <span>{s.label} <em>(sin enlace público)</em></span>}</li>)}
+          </ol>
+          <p class="t-micro t-muted">Verificado el {new Date(VERIFIED_AT).toLocaleDateString('es-AR', { day: 'numeric', month: 'long', year: 'numeric' })}. <a href="/fuentes">Cómo clasificamos la evidencia</a>.</p>
+        </div>
+        {sector && <a class="case__sector card" href={`/sectores/${sector.slug}`}><span class="t-micro t-muted">Sector</span><b>{sector.name}</b><Icon name="arrow" size={16} /></a>}
+      </aside>
+    </div>
+  </section>
+
+  {sols.length > 0 && (
+    <section class="section--tight sf-blanco" aria-labelledby="c-sols">
+      <div class="wrap">
+        <h2 class="t-h3 sec-t" id="c-sols">Soluciones de este caso</h2>
+        <ul class="grid3" role="list">{sols.slice(0, 3).map((s) => <li><SolutionCard s={s} /></li>)}</ul>
+      </div>
+    </section>
+  )}
+
+  <section class="section--tight sf-estudio" aria-labelledby="c-more">
+    <div class="wrap">
+      <h2 class="t-h3 sec-t" id="c-more">Otros casos</h2>
+      <ul class="grid3" role="list">{others.map((o) => <li><CaseCard c={o} /></li>)}</ul>
+    </div>
+  </section>
+
+  <CtaBand source={`caso-${c.slug}`} light="¿Una operación" bold="como esta?" preset={{ tipo: c.sector === 'gobiernos' ? 'gobierno' : c.sector === 'prestadores' ? 'prestador' : 'empresa', interes: c.solutions.slice(0, 2) }} id={`demo-caso-${c.slug}`} />
+</Base>
+
+<style>
+  .case__meta { display: grid; gap: 8px; justify-items: start; padding-top: 12px; }
+  .case__logo { height: 44px; width: auto; margin-bottom: 6px; }
+  .case__meta b { color: var(--u-texto); }
+  .res { padding: clamp(40px, 5vw, 72px) 0; border-bottom: 1px solid var(--u-linea); }
+  .res__list { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 32px; }
+  .res__list li { display: grid; gap: 10px; justify-items: start; align-content: start; }
+  .res__v { display: flex; align-items: baseline; gap: 2px; color: var(--u-violeta); font-size: var(--fs-stat); font-weight: 800; letter-spacing: -.045em; line-height: 1; }
+  .res__v .p { font-weight: 300; }
+  .res__v small { font-size: .5em; font-weight: 700; }
+  .res__icon { color: var(--u-verificado); }
+  .res__l { font-size: var(--fs-small); font-weight: 600; color: var(--u-texto); max-width: 28ch; }
+  .case__grid { display: grid; grid-template-columns: minmax(0, 8fr) minmax(0, 4fr); gap: clamp(40px, 6vw, 96px); align-items: start; }
+  .case__body { display: grid; gap: 20px; max-width: 72ch; }
+  .case__body h2 { color: var(--u-texto); margin-top: 16px; }
+  .case__body h2:first-child { margin-top: 0; }
+  .case__p { font-size: 1.1rem; color: var(--u-texto-suave); }
+  .case__quote { margin: 20px 0; padding: 28px 0 0; border-top: 2px solid var(--u-violeta); display: grid; gap: 14px; }
+  .case__quote blockquote { margin: 0; }
+  .case__quote p { font-size: clamp(1.4rem, 1.1rem + 1vw, 2rem); font-weight: 300; line-height: 1.25; letter-spacing: -.02em; color: var(--u-texto); }
+  .case__quote figcaption { display: flex; flex-wrap: wrap; gap: 8px 12px; align-items: center; font-size: var(--fs-small); color: var(--u-texto-suave); }
+  .case__quote b { color: var(--u-texto); }
+  .case__ctx { padding: 22px 24px; border-radius: var(--r-card); background: #fff; border: 1px solid var(--u-linea); border-left: 3px solid var(--u-alerta-txt); display: grid; gap: 8px; font-size: var(--fs-small); color: var(--u-texto-suave); }
+  .case__side { position: sticky; top: calc(var(--nav-h) + 32px); display: grid; gap: 16px; }
+  .case__box { padding: 24px; border-radius: var(--r-card); background: #fff; border: 1px solid var(--u-linea); display: grid; gap: 14px; }
+  .case__src { display: grid; gap: 10px; counter-reset: s; }
+  .case__src li { font-size: var(--fs-small); line-height: 1.4; }
+  .case__src a { color: var(--u-violeta); font-weight: 600; text-decoration: none; display: inline; }
+  .case__src a :global(svg) { display: inline; vertical-align: -2px; margin-left: 4px; }
+  .case__src a:hover { text-decoration: underline; }
+  .case__src em { color: var(--u-texto-suave); font-size: var(--fs-micro); }
+  .case__box a { color: var(--u-violeta); }
+  .case__sector { display: grid; grid-template-columns: 1fr auto; padding: 18px 20px; gap: 2px 12px; align-items: center; }
+  .case__sector .t-micro { grid-column: 1 / -1; }
+  .case__sector b { color: var(--u-texto); }
+  .case__sector :global(svg) { color: var(--u-violeta); }
+  .sec-t { color: var(--u-texto); margin-bottom: 24px; }
+  .grid3 { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; }
+  @media (max-width: 1000px) { .case__grid { grid-template-columns: 1fr; } .case__side { position: static; } .grid3 { grid-template-columns: 1fr 1fr; } }
+  @media (max-width: 640px) { .grid3 { grid-template-columns: 1fr; } }
+</style>

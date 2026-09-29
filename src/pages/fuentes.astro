@@ -1,0 +1,83 @@
+---
+import Base from '../layouts/Base.astro';
+import PageHero from '../components/PageHero.astro';
+import Evidence from '../components/Evidence.astro';
+import { corporateStats, credentials, VERIFIED_AT } from '../data/site';
+import { cases } from '../data/cases';
+const fecha = new Date(VERIFIED_AT).toLocaleDateString('es-AR', { day: 'numeric', month: 'long', year: 'numeric' });
+const generic = [
+  { t: '−65 % a −75 % de accidentes con ADAS, DSM y videoanalítica', s: 'urbetrack.com/oil-y-gas y blog', url: 'https://urbetrack.com/oil-y-gas' },
+  { t: 'Hasta 15 % menos de combustible con Control de Combustible', s: 'urbetrack.com/aseo-smart-city', url: 'https://urbetrack.com/aseo-smart-city' },
+  { t: 'Hasta 15 % menos de kilómetros con rutas inteligentes', s: 'Blog de Urbetrack, ODS en acción', url: 'https://urbetrack.com/blog/ods-en-accion-urbetrack-acerca-cumplimiento-metas' },
+  { t: 'Efectividad de gestión de incidencias del 75 % al 90 %', s: 'Blog de Urbetrack, ODS en acción', url: 'https://urbetrack.com/blog/ods-en-accion-urbetrack-acerca-cumplimiento-metas' },
+];
+---
+<Base title="Fuentes y metodología" description="Cómo clasifica Urbetrack cada dato de este sitio: comprobado, declarado, a validar o ilustrativo. Cifras corporativas, certificaciones y casos con su fuente.">
+  <PageHero crumbs={[{ href: '/', label: 'Inicio' }, { label: 'Fuentes' }]} kicker="Fuentes y metodología" light="Toda cifra dice" bold="quién la afirma." lead={`Urbetrack vende evidencia, así que su comunicación no afirma lo que no puede probar. Datos verificados el ${fecha}.`} />
+
+  <section class="section--tight sf-blanco" aria-labelledby="f-met">
+    <div class="wrap wrap--narrow prose-wrap">
+      <h2 class="t-h3" id="f-met">Cómo clasificamos</h2>
+      <table class="tbl">
+        <thead><tr><th>Etiqueta</th><th>Cuándo se usa</th></tr></thead>
+        <tbody>
+          <tr><td><span class="ev ev--comprobado">Comprobado</span></td><td>Organismo público, boletín oficial, órgano de control, certificadora o prensa independiente.</td></tr>
+          <tr><td><span class="ev ev--declarado">Declarado</span></td><td>Lo afirma Urbetrack o un socio: sitio, blog, brochure, entrevista. Si la metodología no es pública, se aclara.</td></tr>
+          <tr><td><span class="ev ev--validar">A validar</span></td><td>Mención indirecta, datos que no coinciden entre fuentes o sin fuente accesible.</td></tr>
+          <tr><td><span class="ev ev--ilustrativo">Ilustrativo</span></td><td>Simulaciones, maquetas y valores de ejemplo en demostraciones. Nunca es un resultado.</td></tr>
+        </tbody>
+      </table>
+      <p class="t-small t-muted">Los logos de organizaciones se presentan como "logos que publica urbetrack.com": no implican aval. Las demostraciones animadas del sitio son simulaciones rotuladas.</p>
+    </div>
+  </section>
+
+  <section class="section--tight sf-estudio" aria-labelledby="f-corp">
+    <div class="wrap wrap--narrow prose-wrap">
+      <h2 class="t-h3" id="f-corp">Cifras corporativas y credenciales</h2>
+      <table class="tbl">
+        <thead><tr><th>Dato</th><th>Nivel y fuente</th></tr></thead>
+        <tbody>
+          {corporateStats.map((m) => <tr><td><b>{m.prefix}{m.value}{m.suffix}</b> {m.label}</td><td><Evidence ev={m.evidence} /></td></tr>)}
+          {credentials.map((c) => <tr><td><b>{c.title}</b> · {c.detail}</td><td><Evidence ev={c.evidence} /></td></tr>)}
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section class="section--tight sf-blanco" aria-labelledby="f-cases">
+    <div class="wrap wrap--narrow prose-wrap">
+      <h2 class="t-h3" id="f-cases">Casos</h2>
+      {cases.map((c) => (
+        <article class="fc">
+          <h3 class="t-h4"><a href={`/casos/${c.slug}`}>{c.client}</a> <Evidence ev={{ ...c.evidence, sources: undefined }} /></h3>
+          <ul>{c.sources.map((s) => <li>{s.url ? <a href={s.url} rel="noopener" target="_blank">{s.label}</a> : <span>{s.label} (sin enlace público)</span>}</li>)}</ul>
+        </article>
+      ))}
+    </div>
+  </section>
+
+  <section class="section--tight sf-estudio" aria-labelledby="f-gen">
+    <div class="wrap wrap--narrow prose-wrap">
+      <h2 class="t-h3" id="f-gen">Resultados genéricos</h2>
+      <p class="t-muted">Cifras que Urbetrack publica sin cliente, período ni metodología. Se muestran siempre como declaradas.</p>
+      <table class="tbl">
+        <tbody>{generic.map((g) => <tr><td>{g.t}</td><td><a class="ev ev--declarado" href={g.url} rel="noopener" target="_blank">Declarado · {g.s}</a></td></tr>)}</tbody>
+      </table>
+    </div>
+  </section>
+</Base>
+<style>
+  .prose-wrap { display: grid; gap: 20px; }
+  .prose-wrap h2 { color: var(--u-texto); }
+  .tbl { width: 100%; font-size: var(--fs-small); background: #fff; border: 1px solid var(--u-linea); border-radius: var(--r-card); overflow: hidden; border-collapse: separate; border-spacing: 0; }
+  .tbl th, .tbl td { text-align: left; padding: 14px 16px; border-bottom: 1px solid var(--u-linea); vertical-align: top; }
+  .tbl tr:last-child td { border-bottom: 0; }
+  .tbl th { background: var(--u-estudio); font-weight: 700; color: var(--u-texto); }
+  .tbl td:first-child { width: 55%; }
+  .fc { padding: 18px 0; border-bottom: 1px solid var(--u-linea); display: grid; gap: 10px; }
+  .fc h3 { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
+  .fc h3 a { color: var(--u-texto); }
+  .fc ul { padding-left: 1.2em; display: grid; gap: 6px; font-size: var(--fs-small); }
+  .fc li a { color: var(--u-violeta); }
+  @media (max-width: 640px) { .tbl td:first-child { width: auto; } .tbl, .tbl tbody, .tbl tr, .tbl td { display: block; } .tbl thead { display: none; } .tbl td { border-bottom: 0; padding-bottom: 4px; } .tbl tr { border-bottom: 1px solid var(--u-linea); padding: 8px 0; } }
+</style>

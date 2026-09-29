@@ -1,0 +1,65 @@
+---
+import Base from '../../layouts/Base.astro';
+import PageHero from '../../components/PageHero.astro';
+import SolutionCard from '../../components/SolutionCard.astro';
+import CtaBand from '../../components/CtaBand.astro';
+import Icon from '../../components/Icon.astro';
+import { solutions } from '../../data/solutions';
+import { sectorGroups } from '../../data/nav';
+
+const groups = [
+  { id: 'servicios-urbanos', t: 'Servicios urbanos', d: 'Recolección, barrido, rutas, contenedores y reclamos: para certificar el servicio cuadra por cuadra.' },
+  { id: 'flotas-y-seguridad', t: 'Flotas y seguridad', d: 'Posición, mantenimiento, combustible y seguridad vial para cualquier flota de camiones.' },
+  { id: 'transversal', t: 'Transversal', d: 'IA en cámaras y consultoría: se suman a cualquiera de las soluciones anteriores.' },
+] as const;
+---
+<Base title="Soluciones para residuos, higiene urbana y flotas" description="Recolección certificada, barrido, rutas, incidencias, gestión de flotas, Movilidad Segura, combustible, IA y consultoría. Qué resuelve cada solución y para quién.">
+  <PageHero
+    crumbs={[{ href: '/', label: 'Inicio' }, { label: 'Soluciones' }]}
+    kicker="Soluciones"
+    light="Elige por el problema"
+    bold="que quieres resolver."
+    lead="Todas corren en la misma plataforma y se contratan por módulo. Empieza por una y suma las demás cuando las necesites."
+    cta={{ href: '#contacto', label: 'Solicitar demo', source: 'soluciones' }}
+  >
+    <div slot="extra" class="by in" style="--d:.5s">
+      <p class="t-micro t-muted">O entra por tu sector:</p>
+      <p class="by__list">{sectorGroups.flatMap((g) => g.links).map((l) => <a class="tag" href={l.href}>{l.label}</a>)}</p>
+    </div>
+  </PageHero>
+
+  {groups.map((g, gi) => (
+    <section class:list={['section--tight', gi % 2 ? 'sf-estudio' : 'sf-blanco']} aria-labelledby={`g-${g.id}`}>
+      <div class="wrap grp">
+        <div class="grp__head">
+          <p class="kicker">{String(gi + 1).padStart(2, '0')}</p>
+          <h2 class="t-mix t-h3" id={`g-${g.id}`}><b class="v">{g.t}</b></h2>
+          <p class="t-muted">{g.d}</p>
+        </div>
+        <ul class="grp__grid" role="list">
+          {solutions.filter((s) => s.group === g.id).map((s, i) => <li data-rv style={`--d:${i * 0.06}s`}><SolutionCard s={s} /></li>)}
+        </ul>
+      </div>
+    </section>
+  ))}
+
+  <section class="section--tight sf-blanco">
+    <div class="wrap plat">
+      <p>¿Quieres ver cómo se conectan? <a class="link-arrow" href="/plataforma"><span>Conoce la plataforma</span><Icon name="arrow" /></a></p>
+    </div>
+  </section>
+
+  <CtaBand source="soluciones" id="demo-soluciones" />
+</Base>
+
+<style>
+  .by { display: grid; gap: 8px; margin-top: 8px; }
+  .by__list { display: flex; flex-wrap: wrap; gap: 6px; }
+  .grp { display: grid; grid-template-columns: minmax(0, 4fr) minmax(0, 8fr); gap: clamp(32px, 5vw, 80px); align-items: start; padding-block: clamp(24px, 3vw, 48px); }
+  .grp__head { display: grid; gap: 12px; position: sticky; top: calc(var(--nav-h) + 32px); }
+  .grp__head .t-mix { font-size: clamp(1.6rem, 1.2rem + 1.4vw, 2.4rem); }
+  .grp__grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
+  .plat p { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; font-weight: 600; color: var(--u-texto); }
+  @media (max-width: 1000px) { .grp { grid-template-columns: 1fr; } .grp__head { position: static; } }
+  @media (max-width: 640px) { .grp__grid { grid-template-columns: 1fr; } }
+</style>

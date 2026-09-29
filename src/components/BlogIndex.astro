@@ -1,0 +1,74 @@
+---
+/** Índice del blog: destacados, búsqueda en el cliente y filtro por categoría. */
+import PostCard from './PostCard.astro';
+import Icon from './Icon.astro';
+import { blogCategories } from '../data/nav';
+import type { Post } from '../lib/blog';
+interface Props { posts: Post[]; current?: string }
+const { posts, current } = Astro.props;
+const featured = current ? [] : posts.filter((p) => p.data.featured).slice(0, 2);
+const rest = current ? posts : posts.filter((p) => !featured.includes(p));
+const counts = Object.fromEntries(blogCategories.map((c) => [c.slug, posts.filter((p) => p.data.category === c.slug).length]));
+---
+{featured.length > 0 && (
+  <section class="section--tight sf-blanco" aria-label="Destacados">
+    <div class="wrap feat">
+      <PostCard p={featured[0]} size="lg" />
+      {featured[1] && <PostCard p={featured[1]} />}
+    </div>
+  </section>
+)}
+
+<section class="section--tight sf-estudio" aria-labelledby="bi-t">
+  <div class="wrap">
+    <div class="bar">
+      <h2 class="t-h3" id="bi-t">{current ? 'Artículos' : 'Todos los artículos'}</h2>
+      <div class="bar__search">
+        <label for="blog-q" class="sr-only">Buscar en el blog</label>
+        <Icon name="search" size={20} />
+        <input id="blog-q" class="input" type="search" placeholder="Buscar: RFID, combustible, pliegos…" autocomplete="off" data-q />
+      </div>
+    </div>
+    <nav class="cats" aria-label="Categorías">
+      <a class:list={['tag', { 'tag--v': !current }]} href="/recursos/blog" aria-current={!current ? 'page' : undefined}>Todas</a>
+      {blogCategories.map((c) => (
+        <a class:list={['tag', { 'tag--v': current === c.slug }]} href={`/recursos/blog/categoria/${c.slug}`} aria-current={current === c.slug ? 'page' : undefined}>{c.label}{counts[c.slug] ? ` · ${counts[c.slug]}` : ''}</a>
+      ))}
+    </nav>
+    <ul class="grid" role="list" data-posts>{rest.map((p) => <li><PostCard p={p} /></li>)}</ul>
+    <p class="none t-muted" data-none hidden>No encontramos artículos con esa búsqueda. Prueba con otra palabra o escríbenos a info@urbetrack.com.</p>
+  </div>
+</section>
+
+<style>
+  .feat { display: grid; grid-template-columns: 2fr 1fr; gap: 16px; }
+  .bar { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 16px; margin-bottom: 18px; }
+  .bar h2 { color: var(--u-texto); }
+  .bar__search { position: relative; width: min(420px, 100%); }
+  .bar__search :global(svg) { position: absolute; left: 14px; top: 50%; transform: translateY(-50%); color: var(--u-violeta); pointer-events: none; }
+  .bar__search .input { padding-left: 44px; border-radius: 999px; }
+  .cats { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 28px; }
+  .cats .tag { font-size: var(--fs-small); padding: 8px 14px; }
+  .grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; }
+  .grid li[hidden] { display: none; }
+  .none { padding: 32px 0; }
+  @media (max-width: 1000px) { .feat { grid-template-columns: 1fr; } .grid { grid-template-columns: 1fr 1fr; } }
+  @media (max-width: 640px) { .grid { grid-template-columns: 1fr; } }
+</style>
+
+<script>
+  const q = document.querySelector<HTMLInputElement>('[data-q]');
+  const items = [...document.querySelectorAll<HTMLElement>('[data-posts] > li')];
+  const none = document.querySelector<HTMLElement>('[data-none]')!;
+  const norm = (s: string) => s.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '');
+  q?.addEventListener('input', () => {
+    const terms = norm(q.value).split(/\s+/).filter(Boolean);
+    let n = 0;
+    items.forEach((li) => {
+      const hay = norm(li.querySelector<HTMLElement>('[data-search]')?.dataset.search ?? '');
+      const ok = terms.every((t) => hay.includes(t));
+      li.hidden = !ok; if (ok) n++;
+    });
+    none.hidden = n > 0;
+  });
+</script>

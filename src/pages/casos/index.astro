@@ -1,0 +1,88 @@
+---
+import Base from '../../layouts/Base.astro';
+import PageHero from '../../components/PageHero.astro';
+import CaseCard from '../../components/CaseCard.astro';
+import CtaBand from '../../components/CtaBand.astro';
+import { cases } from '../../data/cases';
+import { sectors } from '../../data/sectors';
+import { logoWall } from '../../data/site';
+
+const COUNTRY = { AR: 'Argentina', MX: 'México', CO: 'Colombia', CL: 'Chile', ES: 'España' } as const;
+const countries = [...new Set(cases.map((c) => c.country))];
+const secs = [...new Set(cases.map((c) => c.sector))].map((s) => sectors.find((x) => x.slug === s)!).filter(Boolean);
+const levels = { comprobado: cases.filter((c) => c.evidence.level === 'comprobado').length, declarado: cases.filter((c) => c.evidence.level === 'declarado').length };
+const listLd = { '@context': 'https://schema.org', '@type': 'ItemList', name: 'Casos de Urbetrack', itemListElement: cases.map((c, i) => ({ '@type': 'ListItem', position: i + 1, url: `https://urbetrack.com/casos/${c.slug}/`, name: c.client })) };
+---
+<Base title="Casos de éxito con fuente" description="Casos de Urbetrack en gobiernos, prestadores de higiene urbana y empresas: qué se implementó, qué resultados se informan y quién los afirma, con enlace a cada fuente." jsonLd={[listLd]}>
+  <PageHero
+    crumbs={[{ href: '/', label: 'Inicio' }, { label: 'Casos' }]}
+    kicker="Casos"
+    light="Operaciones reales,"
+    bold="con la fuente a la vista."
+    lead={`Cada caso indica qué se implementó, qué resultado se informa y quién lo afirma. ${levels.comprobado} casos tienen respaldo de organismos públicos o prensa; ${levels.declarado} son declarados por Urbetrack o el cliente.`}
+  />
+
+  <section class="section--tight sf-blanco" aria-label="Listado de casos">
+    <div class="wrap">
+      <div class="flt" data-filters role="group" aria-label="Filtrar casos">
+        <div class="flt__g"><span class="t-micro t-muted">País</span>
+          <div class="chips">
+            <label class="chip"><input type="radio" name="pais" value="" checked /><span>Todos</span></label>
+            {countries.map((c) => <label class="chip"><input type="radio" name="pais" value={c} /><span>{COUNTRY[c]}</span></label>)}
+          </div>
+        </div>
+        <div class="flt__g"><span class="t-micro t-muted">Sector</span>
+          <div class="chips">
+            <label class="chip"><input type="radio" name="sector" value="" checked /><span>Todos</span></label>
+            {secs.map((s) => <label class="chip"><input type="radio" name="sector" value={s.slug} /><span>{s.name}</span></label>)}
+          </div>
+        </div>
+        <p class="t-small t-muted flt__count" aria-live="polite" data-count-label>{cases.length} casos</p>
+      </div>
+      <ul class="grid" role="list" data-list>
+        {cases.map((c) => <li data-pais={c.country} data-sector={c.sector}><CaseCard c={c} /></li>)}
+      </ul>
+      <p class="empty t-muted" data-empty hidden>No hay casos con esa combinación todavía. Prueba con otro filtro.</p>
+    </div>
+  </section>
+
+  <section class="section--tight sf-estudio" aria-label="Organizaciones">
+    <div class="wrap">
+      <p class="t-small t-muted note">Organizaciones cuyos logos publica urbetrack.com. No implica aval; los casos con fuente están arriba.</p>
+      <ul class="logos" role="list">{logoWall.map((l) => <li><img src={l.src} alt={l.alt} loading="lazy" width="160" height="60" /></li>)}</ul>
+    </div>
+  </section>
+
+  <CtaBand source="casos" light="Tu operación puede ser" bold="el próximo caso." id="demo-casos" />
+</Base>
+
+<style>
+  .flt { display: flex; flex-wrap: wrap; gap: 20px 40px; align-items: flex-end; padding-bottom: 28px; margin-bottom: 32px; border-bottom: 1px solid var(--u-linea); }
+  .flt__g { display: grid; gap: 8px; }
+  .flt__count { margin-left: auto; }
+  .grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; }
+  .grid li[hidden] { display: none; }
+  .empty { padding: 40px 0; }
+  .note { margin-bottom: 16px; }
+  @media (max-width: 1000px) { .grid { grid-template-columns: 1fr 1fr; } }
+  @media (max-width: 640px) { .grid { grid-template-columns: 1fr; } .flt__count { margin-left: 0; } }
+</style>
+
+<script>
+  const box = document.querySelector<HTMLElement>('[data-filters]')!;
+  const items = [...document.querySelectorAll<HTMLElement>('[data-list] > li')];
+  const label = document.querySelector<HTMLElement>('[data-count-label]')!;
+  const empty = document.querySelector<HTMLElement>('[data-empty]')!;
+  function apply() {
+    const pais = (box.querySelector<HTMLInputElement>('input[name="pais"]:checked')?.value) ?? '';
+    const sector = (box.querySelector<HTMLInputElement>('input[name="sector"]:checked')?.value) ?? '';
+    let n = 0;
+    items.forEach((li) => {
+      const ok = (!pais || li.dataset.pais === pais) && (!sector || li.dataset.sector === sector);
+      li.hidden = !ok; if (ok) n++;
+    });
+    label.textContent = `${n} ${n === 1 ? 'caso' : 'casos'}`;
+    empty.hidden = n > 0;
+  }
+  box.addEventListener('change', apply);
+</script>

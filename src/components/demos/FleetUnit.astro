@@ -1,0 +1,237 @@
+---
+/**
+ * Transición entre la visión general de la flota y el detalle de una unidad.
+ * Cada punto es un botón: al elegirlo, el mapa se acerca a la unidad y se abre
+ * su ficha con sensores que se actualizan. Simulación rotulada.
+ */
+import { almagro as g, fleetUnits } from '../../lib/almagro';
+import Icon from '../Icon.astro';
+
+type Status = 'ruta' | 'base' | 'detenida' | 'alerta';
+const kinds = [
+  { id: '24', type: 'Compactador', route: 'R-12', status: 'ruta' as Status, img: '/img/campana/camion-anillo.webp',
+    sensors: [['Compactación', '84', ' %'], ['Presión hidráulica', '185', ' bar'], ['Toma de fuerza', 'Activa', ''], ['Llenado de caja', '72', ' %']],
+    events: [['08:42', 'Levantamiento CT-2487 · RFID'], ['08:39', 'Ciclo de compactación'], ['08:31', 'Inicio de ruta R-12']], prog: 68 },
+  { id: '12', type: 'Barredora', route: 'B-04', status: 'ruta' as Status, img: '/img/campana/sensores-barredora.webp',
+    sensors: [['Cepillos', 'Encendidos', ''], ['Velocidad', '8', ' km/h'], ['Cuadras barridas', '46', ''], ['Sensores', '6/6', '']],
+    events: [['08:40', 'Tramo Av. Rivadavia barrido'], ['08:22', 'Encendido de cepillos'], ['08:05', 'Salida de base']], prog: 54 },
+  { id: '07', type: 'Hidrolavadora', route: 'L-02', status: 'detenida' as Status, img: '/img/campana/sensores-hidrolavadora-flusher.webp',
+    sensors: [['Flusher', 'Detenido', ''], ['Tanque', '38', ' %'], ['Detenida hace', '6', ' min'], ['Sensores', '5/6', '']],
+    events: [['08:37', 'Unidad detenida'], ['08:18', 'Flusher activado'], ['07:58', 'Salida de base']], prog: 41 },
+  { id: '31', type: 'Compactador', route: 'R-15', status: 'alerta' as Status, img: '/img/campana/camion-frente.webp',
+    sensors: [['Evento', 'Fatiga', ''], ['Velocidad', '32', ' km/h'], ['Micro-clip', 'Guardado', ''], ['Conductor', 'Identificado', '']],
+    events: [['08:44', 'Alerta DSM · fatiga · micro-clip'], ['08:12', 'Login con tarjeta RFID'], ['08:10', 'Inicio de ruta R-15']], prog: 33 },
+];
+const statusOf: Status[] = ['ruta', 'ruta', 'base', 'ruta', 'ruta', 'detenida', 'ruta', 'ruta', 'ruta', 'ruta', 'alerta', 'ruta', 'base', 'ruta', 'ruta', 'ruta', 'ruta', 'base'];
+// Unidades con ficha: índices del grid de posiciones
+const featured: Record<number, number> = { 7: 0, 3: 1, 5: 2, 10: 3 };
+const units = fleetUnits.map((u) => {
+  const k = featured[u.i];
+  const status = k !== undefined ? kinds[k].status : statusOf[u.i];
+  return { ...u, status, card: k, label: k !== undefined ? kinds[k].id : String(40 + u.i) };
+});
+const counts = { ruta: units.filter((u) => u.status === 'ruta').length, base: units.filter((u) => u.status === 'base').length, detenida: units.filter((u) => u.status === 'detenida').length, alerta: units.filter((u) => u.status === 'alerta').length };
+const [vx, vy, vw, vh] = g.viewBox.split(' ').map(Number);
+---
+<div class="fu" data-fu data-mode="fleet">
+  <div class="fu__win">
+    <div class="fu__bar">
+      <span class="fu__app"><span class="fu__dot"></span>Monitor Online</span>
+      <span class="fu__crumb" data-crumb>Flota · <b>{units.length} unidades</b></span>
+      <button class="fu__back" type="button" data-back hidden><Icon name="arrow" size={14} /> Volver a la flota</button>
+      <span class="fu__sim">Simulación</span>
+    </div>
+    <div class="fu__body">
+      <div class="fu__map" data-map>
+        <div class="fu__world" data-world>
+          <svg viewBox={g.viewBox} preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+            <rect x={g.box.minX - 900} y={g.box.minY - 900} width={g.box.W + 1800} height={g.box.H + 1800} fill="#1a1f2c" />
+            <use href="#alm-streets" />
+          </svg>
+          {units.map((u) => (
+            <button
+              type="button"
+              class:list={['unit', `unit--${u.status}`, { 'unit--card': u.card !== undefined }]}
+              style={`left:${(((u.x - vx) / vw) * 100).toFixed(2)}%;top:${(((u.y - vy) / vh) * 100).toFixed(2)}%`}
+              data-unit={u.card ?? ''}
+              aria-label={`Unidad ${u.label}, ${u.status === 'ruta' ? 'en ruta' : u.status === 'base' ? 'en base' : u.status}${u.card !== undefined ? ', ver ficha' : ''}`}
+              disabled={u.card === undefined}
+            ><span>{u.label}</span></button>
+          ))}
+        </div>
+        <ul class="fu__legend" role="list">
+          <li><i class="l l--ruta"></i>En ruta <b class="num">{counts.ruta}</b></li>
+          <li><i class="l l--base"></i>En base <b class="num">{counts.base}</b></li>
+          <li><i class="l l--detenida"></i>Detenida <b class="num">{counts.detenida}</b></li>
+          <li><i class="l l--alerta"></i>Alerta <b class="num">{counts.alerta}</b></li>
+        </ul>
+      </div>
+
+      {kinds.map((k, i) => (
+        <aside class="card-u" data-card={i} hidden aria-live="polite">
+          <header class="card-u__h">
+            <img src={k.img} alt="" width="160" height="100" loading="lazy" />
+            <div>
+              <p class="card-u__id">Unidad {k.id}</p>
+              <p class="card-u__t">{k.type} · Ruta {k.route}</p>
+              <p class:list={['card-u__st', `st-${k.status}`]}>{k.status === 'ruta' ? 'En ruta' : k.status === 'alerta' ? 'Alerta activa' : 'Detenida'}</p>
+            </div>
+          </header>
+          <div class="card-u__prog"><span>Avance de ruta</span><b class="num">{k.prog} %</b><i style={`--p:${k.prog / 100}`}></i></div>
+          <dl class="card-u__sens">
+            {k.sensors.map(([l, v, u]) => (<div><dt>{l}</dt><dd class="num" data-live={/^\d+$/.test(v) ? v : undefined}>{v}<small>{u}</small></dd></div>))}
+          </dl>
+          <p class="card-u__eh">Últimos eventos</p>
+          <ol class="card-u__ev" role="list">
+            {k.events.map(([t, e], j) => (<li class:list={{ 'is-alert': k.status === 'alerta' && j === 0 }}><span class="num">{t}</span>{e}</li>))}
+          </ol>
+        </aside>
+      ))}
+    </div>
+  </div>
+  <p class="fu__src">Simulación ilustrativa sobre calles de Almagro (© OpenStreetMap). Elige una unidad resaltada para ver su ficha.</p>
+</div>
+
+<style>
+  .fu { display: grid; gap: 14px; }
+  .fu__win { border-radius: 20px; overflow: hidden; background: #141824; box-shadow: 0 0 0 1px rgba(183, 155, 217, .22), 0 40px 90px -40px rgba(0, 0, 0, .9); }
+  .fu__bar { display: flex; align-items: center; gap: 14px; height: 50px; padding: 0 14px 0 18px; border-bottom: 1px solid #262c3b; font-size: var(--fs-micro); color: var(--u-acero); }
+  .fu__app { display: inline-flex; gap: 8px; align-items: center; font-weight: 800; color: #fff; }
+  .fu__dot { width: 8px; height: 8px; border-radius: 50%; background: var(--u-violeta-claro); box-shadow: 0 0 0 3px rgba(183, 155, 217, .2); }
+  .fu__crumb b { color: #fff; }
+  .fu__back { display: inline-flex; align-items: center; gap: 6px; border: 1px solid rgba(183, 155, 217, .4); background: transparent; color: #fff; border-radius: 8px; padding: 6px 10px; font-size: var(--fs-micro); font-weight: 700; }
+  .fu__back :global(svg) { transform: rotate(180deg); }
+  .fu__back:hover { background: rgba(183, 155, 217, .12); }
+  .fu__sim { margin-left: auto; padding: 3px 9px; border-radius: 999px; border: 1px dashed #4a5163; font-weight: 600; }
+  .fu__body { position: relative; display: grid; grid-template-columns: 1fr; aspect-ratio: 16 / 9.5; min-height: 420px; }
+  .fu__map { position: relative; overflow: hidden; }
+  .fu__world { position: absolute; inset: 0; transform-origin: 0 0; transition: transform 1.1s var(--ease-io); will-change: transform; }
+  .fu__world svg { width: 100%; height: 100%; display: block; --st-res: #242a39; --st-pri: #2b3243; --st-av: #353d52; }
+  .unit {
+    position: absolute; width: 30px; height: 30px; margin: -15px 0 0 -15px; border-radius: 50%; border: 0; padding: 0;
+    display: grid; place-items: center; font-size: .75rem; font-weight: 800; color: #fff; cursor: default;
+    transform: scale(calc(var(--us, 1) * var(--inv, 1))); transition: transform 1.1s var(--ease-io), opacity .4s, box-shadow .3s;
+  }
+  .unit span { pointer-events: none; }
+  .unit--ruta { background: var(--u-violeta); box-shadow: 0 0 0 3px rgba(110, 66, 153, .35); }
+  .unit--base { background: #4a5163; color: #d6dae3; }
+  .unit--detenida { background: #141824; box-shadow: inset 0 0 0 2.5px var(--u-violeta-claro); color: var(--u-violeta-claro); }
+  .unit--alerta { background: var(--u-pin); color: var(--u-tinta); box-shadow: 0 0 0 0 rgba(238, 120, 36, .6); animation: u-pulse 1.8s var(--ease-out) infinite; }
+  @keyframes u-pulse { 0% { box-shadow: 0 0 0 0 rgba(238, 120, 36, .6); } 100% { box-shadow: 0 0 0 16px rgba(238, 120, 36, 0); } }
+  .unit--card { cursor: pointer; outline: 2px solid rgba(255, 255, 255, .85); outline-offset: 3px; }
+  .unit--card:hover { --us: 1.18; }
+  .unit:focus-visible { outline: 3px solid var(--u-pin); outline-offset: 4px; }
+  .fu[data-mode="unit"] .unit:not(.is-sel) { opacity: .35; }
+  .fu[data-mode="unit"] .unit.is-sel { --us: 1.25; }
+  .fu__legend { position: absolute; left: 14px; bottom: 14px; display: flex; flex-wrap: wrap; gap: 6px 14px; padding: 10px 14px; border-radius: 12px; background: rgba(20, 24, 36, .85); border: 1px solid #262c3b; font-size: var(--fs-micro); color: var(--u-acero); font-weight: 600; transition: opacity .4s; }
+  .fu__legend li { display: inline-flex; align-items: center; gap: 7px; }
+  .fu__legend b { color: #fff; }
+  .l { width: 10px; height: 10px; border-radius: 50%; }
+  .l--ruta { background: var(--u-violeta); } .l--base { background: #4a5163; } .l--detenida { box-shadow: inset 0 0 0 2px var(--u-violeta-claro); } .l--alerta { background: var(--u-pin); }
+  .fu[data-mode="unit"] .fu__legend { opacity: 0; }
+
+  .card-u {
+    position: absolute; top: 14px; right: 14px; bottom: 14px; width: min(360px, 46%); overflow: auto; padding: 18px;
+    border-radius: 16px; background: rgba(26, 31, 44, .94); border: 1px solid rgba(183, 155, 217, .28);
+    -webkit-backdrop-filter: blur(12px); backdrop-filter: blur(12px); color: #fff; display: grid; gap: 14px; align-content: start;
+  }
+  .card-u:not([hidden]) { animation: cu-in .7s var(--ease-out) .35s both; }
+  @keyframes cu-in { from { opacity: 0; transform: translateX(24px); } to { opacity: 1; transform: none; } }
+  .card-u__h { display: flex; gap: 14px; align-items: center; }
+  .card-u__h img { width: 96px; height: 64px; object-fit: cover; border-radius: 10px; background: #fff; flex: none; }
+  .card-u__id { font-size: 1.3rem; font-weight: 800; letter-spacing: -.02em; line-height: 1.1; }
+  .card-u__t { font-size: var(--fs-micro); color: var(--u-acero); font-weight: 600; }
+  .card-u__st { display: inline-flex; align-items: center; gap: 6px; margin-top: 6px; font-size: .75rem; font-weight: 700; color: var(--u-violeta-claro); }
+  .card-u__st::before { content: ""; width: 7px; height: 7px; border-radius: 50%; background: currentColor; }
+  .card-u__st.st-alerta { color: var(--u-pin); }
+  .card-u__st.st-detenida { color: var(--u-acero); }
+  .card-u__prog { display: grid; grid-template-columns: 1fr auto; gap: 6px; font-size: var(--fs-micro); color: var(--u-acero); font-weight: 600; }
+  .card-u__prog b { color: #fff; }
+  .card-u__prog i { grid-column: 1 / -1; height: 5px; border-radius: 5px; background: #2e3548; overflow: hidden; position: relative; }
+  .card-u__prog i::after { content: ""; position: absolute; inset: 0; background: var(--u-grad); transform-origin: left; transform: scaleX(var(--p)); }
+  .card-u__sens { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+  .card-u__sens div { padding: 10px 12px; border-radius: 10px; background: #20263a; border: 1px solid #2c3347; }
+  .card-u__sens dt { font-size: .75rem; font-weight: 700; color: var(--u-acero); letter-spacing: .02em; }
+  .card-u__sens dd { margin: 2px 0 0; font-size: 1.1rem; font-weight: 800; letter-spacing: -.02em; }
+  .card-u__sens small { font-size: .7em; font-weight: 600; color: var(--u-acero); }
+  .card-u__eh { font-size: .75rem; font-weight: 700; letter-spacing: .14em; text-transform: uppercase; color: var(--u-violeta-claro); }
+  .card-u__ev { display: grid; gap: 8px; font-size: var(--fs-micro); color: #dfe3ea; }
+  .card-u__ev li { display: flex; gap: 10px; }
+  .card-u__ev span { color: var(--u-acero); font-weight: 700; }
+  .card-u__ev .is-alert { color: #f7a768; font-weight: 700; }
+  .fu__src { font-size: .75rem; color: var(--u-acero); }
+
+  @media (max-width: 760px) {
+    .fu__body { aspect-ratio: auto; min-height: 0; display: block; }
+    .fu__map { aspect-ratio: 4 / 3.4; }
+    .fu__crumb { display: none; }
+    .card-u { position: relative; inset: auto; width: auto; margin: 0; border-radius: 0; border: 0; border-top: 1px solid #262c3b; }
+    .unit { width: 26px; height: 26px; margin: -13px 0 0 -13px; }
+  }
+  @media (prefers-reduced-motion: reduce) { .fu__world { transition: none; } }
+</style>
+
+<script>
+  document.querySelectorAll<HTMLElement>('[data-fu]').forEach((root) => {
+    const world = root.querySelector<HTMLElement>('[data-world]')!;
+    const map = root.querySelector<HTMLElement>('[data-map]')!;
+    const back = root.querySelector<HTMLButtonElement>('[data-back]')!;
+    const crumb = root.querySelector<HTMLElement>('[data-crumb]')!;
+    const cards = [...root.querySelectorAll<HTMLElement>('[data-card]')];
+    const units = [...root.querySelectorAll<HTMLButtonElement>('.unit--card')];
+    const crumbFleet = crumb.innerHTML;
+    const mobile = () => matchMedia('(max-width: 760px)').matches;
+    let userTouched = false;
+    let tick: number | undefined;
+
+    function select(btn: HTMLButtonElement | null) {
+      clearInterval(tick);
+      units.forEach((u) => u.classList.toggle('is-sel', u === btn));
+      cards.forEach((c) => (c.hidden = true));
+      if (!btn) {
+        root.dataset.mode = 'fleet';
+        world.style.transform = '';
+        world.style.setProperty('--inv', '1');
+        back.hidden = true;
+        crumb.innerHTML = crumbFleet;
+        return;
+      }
+      const i = Number(btn.dataset.unit);
+      const card = cards[i];
+      root.dataset.mode = 'unit';
+      back.hidden = false;
+      crumb.innerHTML = `Flota › <b>${card.querySelector('.card-u__id')!.textContent}</b>`;
+      // Acercar el mapa a la unidad, dejando lugar a la ficha a la derecha en desktop
+      const M = map.getBoundingClientRect();
+      const x = (parseFloat(btn.style.left) / 100) * M.width;
+      const y = (parseFloat(btn.style.top) / 100) * M.height;
+      const s = 2.1;
+      const targetX = mobile() ? M.width / 2 : M.width * 0.3;
+      const targetY = M.height / 2;
+      world.style.transform = `translate(${targetX - x * s}px, ${targetY - y * s}px) scale(${s})`;
+      world.style.setProperty('--inv', String(1 / s));
+      card.hidden = false;
+      // Telemetría que se actualiza
+      const live = [...card.querySelectorAll<HTMLElement>('[data-live]')];
+      if (!matchMedia('(prefers-reduced-motion: reduce)').matches) {
+        tick = window.setInterval(() => {
+          live.forEach((el) => {
+            const base = Number(el.dataset.live);
+            const v = Math.max(0, Math.round(base + (Math.random() - 0.5) * Math.max(2, base * 0.04)));
+            el.firstChild!.textContent = String(v);
+          });
+        }, 1400);
+      }
+    }
+    units.forEach((u) => u.addEventListener('click', () => { userTouched = true; select(u); }));
+    back.addEventListener('click', () => { userTouched = true; select(null); units[0]?.focus(); });
+
+    // Demostración automática una vez, si el usuario no interactuó
+    const io = new IntersectionObserver(([e]) => {
+      if (!e.isIntersecting) { clearInterval(tick); return; }
+      io.disconnect();
+      setTimeout(() => { if (!userTouched) select(units.find((u) => u.dataset.unit === '0') ?? null); }, 1400);
+    }, { threshold: 0.5 });
+    io.observe(root);
+  });
+</script>

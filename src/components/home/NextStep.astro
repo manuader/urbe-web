@@ -1,0 +1,39 @@
+---
+import DemoForm from '../DemoForm.astro';
+import Logo from '../Logo.astro';
+import Icon from '../Icon.astro';
+import { site } from '../../data/site';
+---
+<section class="section next sf-lavanda" id="contacto" aria-labelledby="next-t">
+  <div class="wrap next__grid">
+    <div class="next__copy">
+      <Logo variant="iso" animate="view" class="next__iso" />
+      <p class="kicker">Siguiente paso</p>
+      <h2 class="t-mix t-h2" id="next-t" data-rv>Cuéntanos tu operación. <b class="v">Te mostramos cómo se vería.</b></h2>
+      <hr class="rule" data-rv />
+      <p class="t-lead" data-rv>Una demo sobre un caso como el tuyo, con un especialista de tu sector. Sin compromiso y sin presentaciones genéricas.</p>
+      <ol class="next__steps" role="list">
+        <li data-rv><span class="num">01</span><div><b>Completas el formulario</b><p>Tres pasos, menos de un minuto.</p></div></li>
+        <li data-rv style="--d:.06s"><span class="num">02</span><div><b>Hablamos de tu operación</b><p>Flota, contratos, rutas y lo que necesitas demostrar.</p></div></li>
+        <li data-rv style="--d:.12s"><span class="num">03</span><div><b>Ves la plataforma con tus casos</b><p>Qué verías, qué se certifica y cómo se implementa.</p></div></li>
+      </ol>
+      <p class="next__alt t-small t-muted"><Icon name="phone" size={18} /> {site.phone} · <a href={`mailto:${site.email}`}>{site.email}</a></p>
+    </div>
+    <div class="next__form" data-rv style="--d:.1s"><DemoForm id="demo-home" source="home" /></div>
+  </div>
+</section>
+<style>
+  .next__grid { display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 7fr); gap: clamp(40px, 6vw, 96px); align-items: start; }
+  .next__copy { display: grid; gap: 22px; justify-items: start; position: sticky; top: calc(var(--nav-h) + 40px); }
+  .next__copy :global(.next__iso) { width: 44px; }
+  .next__copy .t-mix { max-width: 16ch; }
+  .next__steps { display: grid; gap: 18px; margin-top: 8px; }
+  .next__steps li { display: flex; gap: 16px; align-items: flex-start; }
+  .next__steps .num { font-size: .8rem; font-weight: 800; color: var(--u-violeta); background: #fff; border-radius: 999px; padding: 6px 10px; box-shadow: 0 0 0 1px var(--u-lavanda-2); }
+  .next__steps b { color: var(--u-texto); font-weight: 800; }
+  .next__steps p { font-size: var(--fs-small); color: var(--u-texto-suave); }
+  .next__alt { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+  .next__alt :global(svg) { color: var(--u-violeta); }
+  .next__alt a { color: var(--u-violeta); font-weight: 700; }
+  @media (max-width: 1000px) { .next__grid { grid-template-columns: 1fr; } .next__copy { position: static; } }
+</style>

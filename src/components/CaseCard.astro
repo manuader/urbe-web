@@ -1,0 +1,42 @@
+---
+import type { CaseStudy } from '../data/types';
+import Evidence from './Evidence.astro';
+import Icon from './Icon.astro';
+interface Props { c: CaseStudy; size?: 'lg' | 'md' }
+const { c, size = 'md' } = Astro.props;
+const COUNTRY = { AR: 'Argentina', MX: 'México', CO: 'Colombia', CL: 'Chile', ES: 'España' } as const;
+const lead = c.results.find((r) => r.value) ?? c.results[0];
+---
+<a class:list={['cc card', `cc--${size}`]} href={`/casos/${c.slug}`}>
+  <figure class="cc__fig"><img src={c.image} alt={c.imageAlt} width="800" height="500" loading="lazy" decoding="async" /></figure>
+  <div class="cc__body">
+    <p class="cc__meta">{c.place} · {COUNTRY[c.country]} · {c.period}</p>
+    <h3 class="cc__t">{c.client}</h3>
+    {lead?.value ? (
+      <p class="cc__stat num"><span class="p">{lead.prefix}</span><b>{lead.value}</b><small>{lead.suffix}</small></p>
+    ) : null}
+    <p class="cc__l">{lead?.value ? lead.label : c.summary}</p>
+    <div class="cc__foot">
+      {lead && <Evidence ev={{ ...lead.evidence, sources: undefined }} />}
+      <span class="cc__go">Ver caso <Icon name="arrow" size={16} /></span>
+    </div>
+  </div>
+</a>
+<style>
+  .cc { display: grid; grid-template-rows: auto 1fr; overflow: hidden; height: 100%; }
+  .cc__fig { aspect-ratio: 16 / 10; overflow: hidden; background: var(--u-niebla); }
+  .cc__fig img { width: 100%; height: 100%; object-fit: cover; transition: transform 1.2s var(--ease-out); }
+  .cc:hover .cc__fig img { transform: scale(1.04); }
+  .cc__body { display: grid; gap: 8px; padding: 22px 22px 20px; align-content: start; }
+  .cc__meta { font-size: var(--fs-micro); font-weight: 600; color: var(--ink-2); }
+  .cc__t { font-size: 1.15rem; font-weight: 800; line-height: 1.25; color: var(--ink); letter-spacing: -.01em; }
+  .cc__stat { display: flex; align-items: baseline; gap: 2px; margin-top: 6px; color: var(--acento); font-size: 2.6rem; font-weight: 800; letter-spacing: -.045em; line-height: 1; }
+  .cc__stat .p { font-weight: 300; }
+  .cc__stat small { font-size: .5em; font-weight: 700; letter-spacing: -.02em; margin-left: 2px; }
+  .cc__l { font-size: var(--fs-small); color: var(--ink-2); line-height: 1.45; }
+  .cc__foot { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 10px; margin-top: 8px; }
+  .cc__go { display: inline-flex; align-items: center; gap: 6px; font-size: var(--fs-small); font-weight: 700; color: var(--acento); }
+  .cc__go :global(svg) { transition: transform var(--t-micro) var(--ease-out); }
+  .cc:hover .cc__go :global(svg) { transform: translateX(4px); }
+  .cc--lg .cc__t { font-size: 1.4rem; }
+</style>

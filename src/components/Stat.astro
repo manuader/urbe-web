@@ -1,0 +1,16 @@
+---
+import type { Metric } from '../data/types';
+import Evidence from './Evidence.astro';
+interface Props { m: Metric; count?: boolean; showEv?: boolean }
+const { m, count = true, showEv = true } = Astro.props;
+const numeric = /^\d+$/.test(m.value);
+---
+<div class="stat">
+  <span class="stat__v num">
+    {m.prefix && <span class="p">{m.prefix}</span>}
+    <b data-count={count && numeric ? m.value : undefined}>{m.value}</b>
+    {m.suffix && <small>{m.suffix}</small>}
+  </span>
+  <span class="stat__l">{m.label}</span>
+  {showEv && <Evidence ev={m.evidence} short />}
+</div>

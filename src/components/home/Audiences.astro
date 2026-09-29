@@ -1,0 +1,145 @@
+---
+import SectionHead from '../SectionHead.astro';
+import Icon from '../Icon.astro';
+import { solutions } from '../../data/solutions';
+import { solutionGroups } from '../../data/nav';
+
+const byslug = Object.fromEntries(solutions.map((s) => [s.slug, s]));
+const tabs = [
+  {
+    id: 'gob', label: 'Gobiernos y municipios', img: '/img/mod-monitoreo.webp', imgAlt: 'Centro de control con el mapa de la flota y cámaras de las unidades en una pared de pantallas',
+    q: '“¿Cómo sé que el servicio que pago se prestó en cada cuadra?”',
+    gets: [
+      'Un tablero propio para el organismo de control, con los mismos datos que ve el prestador',
+      'Pago vinculado a servicio verificado: contenedor, unidad, hora y lugar',
+      'Reclamos de vecinos con foto, asignación y cierre',
+      'Consultoría para diseñar planes de trabajo y pliegos que se puedan controlar',
+    ],
+    sols: ['recoleccion-certificada', 'incidencias-y-reclamos', 'consultoria'],
+    href: '/sectores/gobiernos', cta: 'Ver el recorrido para gobiernos',
+  },
+  {
+    id: 'pre', label: 'Prestadores de higiene urbana', img: '/img/tel-roll-off.webp', imgAlt: 'Camión roll-off con su sistema hidráulico de carga de contenedores',
+    q: '“¿Cómo demuestro mi cumplimiento antes de que me lo discutan?”',
+    gets: [
+      'Evidencia por turno de cada levantamiento, barrido y lavado',
+      'Sensores de trabajo: la unidad informa qué hizo, no solo dónde estuvo',
+      'Respaldo georreferenciado para responder actas y penalidades',
+      'Mantenimiento, ranking de conductores y combustible en la misma plataforma',
+    ],
+    sols: ['recoleccion-certificada', 'barrido-e-higiene-urbana', 'gestion-de-flotas'],
+    href: '/sectores/prestadores', cta: 'Ver el recorrido para prestadores',
+  },
+  {
+    id: 'emp', label: 'Empresas con flota', img: '/img/sector-oil-gas.webp', imgAlt: 'Camión cisterna en un yacimiento al atardecer',
+    q: '“¿Dónde se me van el combustible, el tiempo y la seguridad?”',
+    gets: [
+      'Alertas de fatiga, distracción y colisión con video del evento',
+      'Cada carga de combustible autorizada y conciliada por unidad',
+      'Viajes, mantenimiento y caja negra, también sin cobertura celular',
+      'Integración con tus sistemas de despacho, ERP y balanzas',
+    ],
+    sols: ['movilidad-segura', 'control-de-combustible', 'gestion-de-flotas'],
+    href: '/sectores/logistica', cta: 'Ver soluciones para flotas',
+    more: [
+      { href: '/sectores/oil-gas', label: 'Oil & Gas' },
+      { href: '/sectores/mineria', label: 'Minería' },
+      { href: '/sectores/construccion', label: 'Construcción' },
+      { href: '/sectores/logistica', label: 'Logística' },
+    ],
+  },
+];
+---
+<section class="section aud sf-blanco" id="soluciones" aria-labelledby="aud-t">
+  <div class="wrap">
+    <div class="aud__head">
+      <SectionHead id="aud-t" kicker="Soluciones por público" light="La misma plataforma," bold="tres recorridos distintos." lead="Un municipio, una concesionaria y una empresa con flota miran problemas distintos. Elige el tuyo." />
+      <div class="tabs aud__tabs" role="tablist" aria-label="Elegir público" data-tabs>
+        {tabs.map((t, i) => (
+          <button class="tab" role="tab" id={`aud-tab-${t.id}`} aria-controls={`aud-p-${t.id}`} aria-selected={i === 0 ? 'true' : 'false'} tabindex={i === 0 ? 0 : -1}>{t.label}</button>
+        ))}
+      </div>
+    </div>
+
+    {tabs.map((t, i) => (
+      <article class="aud__panel" role="tabpanel" id={`aud-p-${t.id}`} aria-labelledby={`aud-tab-${t.id}`} hidden={i !== 0}>
+        <figure class="aud__fig">
+          <img src={t.img} alt={t.imgAlt} width="1200" height="700" loading="lazy" decoding="async" />
+        </figure>
+        <div class="aud__body">
+          <p class="aud__q">{t.q}</p>
+          <p class="kicker kicker--muted">Lo que obtienes</p>
+          <ul class="checks">{t.gets.map((g) => <li>{g}</li>)}</ul>
+          <div class="aud__sols">
+            {t.sols.map((s) => byslug[s] && (
+              <a class="aud__sol" href={`/soluciones/${s}`}>
+                <span class="tile-ico tile-ico--sm"><Icon name={byslug[s].icon} /></span>
+                <span><b>{byslug[s].name}</b><small>{byslug[s].short}</small></span>
+              </a>
+            ))}
+          </div>
+          <div class="aud__foot">
+            <a class="btn btn--primario" href={t.href}>{t.cta} <Icon name="arrow" class="arrow" /></a>
+            {t.more && <p class="aud__more">{t.more.map((m) => <a class="tag" href={m.href}>{m.label}</a>)}</p>}
+          </div>
+        </div>
+      </article>
+    ))}
+
+    <div class="aud__all">
+      <p class="kicker kicker--muted">Todas las soluciones</p>
+      <div class="aud__groups">
+        {solutionGroups.map((g) => (
+          <div>
+            <p class="aud__gt">{g.title}</p>
+            <ul role="list">
+              {g.links.map((l) => (
+                <li><a href={l.href}><span>{l.label}</span><Icon name="arrow" size={16} /></a></li>
+              ))}
+            </ul>
+          </div>
+        ))}
+      </div>
+    </div>
+  </div>
+</section>
+
+<style>
+  .aud__head { display: grid; grid-template-columns: 1fr auto; gap: 32px; align-items: end; margin-bottom: clamp(32px, 4vw, 56px); }
+  .aud__panel { display: grid; grid-template-columns: minmax(0, 6fr) minmax(0, 6fr); gap: clamp(28px, 4vw, 64px); align-items: stretch; }
+  .aud__panel:not([hidden]) { animation: aud-in .6s var(--ease-out) both; }
+  @keyframes aud-in { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
+  .aud__fig { border-radius: var(--r-glass); overflow: hidden; min-height: 420px; background: var(--u-niebla); }
+  .aud__fig img { width: 100%; height: 100%; object-fit: cover; }
+  .aud__body { display: grid; gap: 22px; align-content: start; }
+  .aud__q { font-size: clamp(1.35rem, 1.1rem + .9vw, 1.9rem); font-weight: 300; line-height: 1.25; letter-spacing: -.015em; color: var(--u-texto); }
+  .aud__sols { display: grid; gap: 10px; }
+  .aud__sol { display: flex; gap: 14px; align-items: center; padding: 12px 14px; border-radius: 12px; border: 1px solid var(--u-linea); text-decoration: none; transition: border-color var(--t-micro), background-color var(--t-micro); }
+  .aud__sol:hover { border-color: var(--u-violeta-claro); background: var(--u-estudio); }
+  .aud__sol b { display: block; font-size: .95rem; font-weight: 800; color: var(--u-texto); }
+  .aud__sol small { display: block; font-size: var(--fs-micro); color: var(--u-texto-suave); font-weight: 500; line-height: 1.4; }
+  .aud__foot { display: flex; flex-wrap: wrap; gap: 14px; align-items: center; }
+  .aud__more { display: flex; flex-wrap: wrap; gap: 6px; }
+  .aud__all { margin-top: clamp(56px, 6vw, 96px); padding-top: 32px; border-top: 1px solid var(--u-linea); display: grid; gap: 20px; }
+  .aud__groups { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 32px; }
+  .aud__gt { font-weight: 800; color: var(--u-texto); margin-bottom: 8px; }
+  .aud__groups a { display: flex; justify-content: space-between; align-items: center; gap: 12px; padding: 12px 0; border-bottom: 1px solid var(--u-linea); text-decoration: none; font-weight: 600; color: var(--u-texto); transition: color var(--t-micro), padding var(--t-micro) var(--ease-out); }
+  .aud__groups a :global(svg) { color: var(--u-violeta); opacity: 0; transform: translateX(-6px); transition: all var(--t-micro) var(--ease-out); }
+  .aud__groups a:hover { color: var(--u-violeta); padding-left: 6px; }
+  .aud__groups a:hover :global(svg) { opacity: 1; transform: none; }
+  @media (max-width: 1080px) {
+    .aud__head { grid-template-columns: 1fr; }
+    .aud__panel { grid-template-columns: 1fr; }
+    .aud__fig { min-height: 0; aspect-ratio: 16 / 9; }
+  }
+  @media (max-width: 720px) {
+    .aud__tabs { display: flex; flex-wrap: nowrap; overflow-x: auto; border-radius: 14px; scrollbar-width: none; max-width: 100%; }
+    .aud__tabs .tab { white-space: nowrap; }
+    .aud__groups { grid-template-columns: 1fr; gap: 20px; }
+  }
+</style>
+
+<script>
+  import { initTabs } from '../../scripts/tabs';
+  initTabs();
+</script>

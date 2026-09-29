@@ -1,0 +1,109 @@
+---
+/**
+ * Logo de Urbetrack con animación de firma [EXT de movimiento].
+ * Respeta la geometría del vector oficial: no se redibuja nada, solo se revela.
+ *  1. La U se traza de izquierda a derecha (máscara sobre su eje).
+ *  2. El pin cae sobre la U, comprime y se asienta (marca un lugar).
+ *  3. El logotipo entra letra por letra.
+ * `animate`: 'load' (al cargar, una vez por sesión) · 'view' (al entrar en pantalla) · 'none'.
+ */
+import horizontal from '../../public/brand/urbetrack-logo-horizontal-color.svg?raw';
+import horizontalBlanco from '../../public/brand/urbetrack-logo-horizontal-blanco.svg?raw';
+import vertical from '../../public/brand/urbetrack-logo-vertical-color.svg?raw';
+import verticalBlanco from '../../public/brand/urbetrack-logo-vertical-blanco.svg?raw';
+import iso from '../../public/brand/urbetrack-isotipo-color.svg?raw';
+import isoBlanco from '../../public/brand/urbetrack-isotipo-blanco.svg?raw';
+
+interface Props {
+  variant?: 'horizontal' | 'vertical' | 'iso';
+  tone?: 'color' | 'blanco';
+  animate?: 'load' | 'view' | 'none';
+  class?: string;
+  label?: string;
+}
+const { variant = 'horizontal', tone = 'color', animate = 'none', class: cls = '', label = 'Urbetrack' } = Astro.props;
+
+const src = {
+  horizontal: tone === 'blanco' ? horizontalBlanco : horizontal,
+  vertical: tone === 'blanco' ? verticalBlanco : vertical,
+  iso: tone === 'blanco' ? isoBlanco : iso,
+}[variant];
+
+const uid = `lg${Math.random().toString(36).slice(2, 8)}`;
+// Eje de la U en coordenadas del vector original
+const AXIS = 'M261.15 358 V414.2 C261.15 438.5 275.6 451.3 295.3 451.3 C315 451.3 329.6 438.5 329.6 414.2 V358';
+
+let i = 0;
+let svg = src
+  .replace(/<title>.*?<\/title>/, '')
+  .replace(/role="img"\s*/, '')
+  .replace(/aria-label="[^"]*"\s*/, '')
+  .replace(/<path([^>]*)\/>/g, (_m, attrs) => {
+    const k = i++;
+    const c = k === 0 ? 'lg-u' : k === 1 ? 'lg-pin' : 'lg-l';
+    const extra = k === 0 ? ` mask="url(#${uid}m)"` : '';
+    const style = k >= 2 ? ` style="--i:${k - 2}"` : '';
+    return `<path class="${c}"${extra}${style}${attrs}/>`;
+  });
+// Envolver el pin en un grupo para transformar desde su punta
+svg = svg.replace(/(<path class="lg-pin"[^>]*\/>)/, '<g class="lg-pin-g">$1</g>');
+svg = svg.replace(
+  /<svg([^>]*)>/,
+  `<svg$1 aria-hidden="true" focusable="false"><defs><mask id="${uid}m" maskUnits="userSpaceOnUse" x="240" y="340" width="110" height="130"><path class="lg-mask" d="${AXIS}" fill="none" stroke="#fff" stroke-width="17" stroke-linecap="butt" pathLength="1"/></mask></defs>`,
+);
+---
+<span class:list={['lg', `lg--${variant}`, cls]} data-logo-anim={animate} role="img" aria-label={label}>
+  <Fragment set:html={svg} />
+</span>
+
+<style is:global>
+  .lg { display: inline-block; line-height: 0; }
+  .lg svg { width: 100%; height: auto; overflow: visible; }
+  .lg .lg-mask { stroke-dasharray: 1; stroke-dashoffset: 0; }
+  .lg .lg-pin-g { transform-box: fill-box; transform-origin: 50% 100%; }
+  .lg .lg-l { transform-box: fill-box; }
+
+  @media (prefers-reduced-motion: no-preference) {
+    /* Al cargar (una vez por sesión): solo CSS; si algo falla, el logo queda completo */
+    html:not([data-logo="static"]) .lg[data-logo-anim="load"] .lg-mask { animation: lg-draw .72s .1s cubic-bezier(.65, 0, .35, 1) both; }
+    html:not([data-logo="static"]) .lg[data-logo-anim="load"] .lg-pin-g { animation: lg-drop .82s .52s both; }
+    html:not([data-logo="static"]) .lg[data-logo-anim="load"] .lg-l { animation: lg-letter .6s cubic-bezier(.22, 1, .36, 1) both; animation-delay: calc(.65s + var(--i) * 45ms); }
+
+    /* Al entrar en pantalla: estado previo solo cuando el JS está listo */
+    .rv-ready .lg[data-logo-anim="view"]:not(.is-anim):not(.is-done) .lg-mask { stroke-dashoffset: 1; }
+    .rv-ready .lg[data-logo-anim="view"]:not(.is-anim):not(.is-done) .lg-pin-g,
+    .rv-ready .lg[data-logo-anim="view"]:not(.is-anim):not(.is-done) .lg-l { opacity: 0; }
+    .lg.is-anim .lg-mask { animation: lg-draw .72s cubic-bezier(.65, 0, .35, 1) both; }
+    .lg.is-anim .lg-pin-g { animation: lg-drop .82s .42s both; }
+    .lg.is-anim .lg-l { animation: lg-letter .6s cubic-bezier(.22, 1, .36, 1) both; animation-delay: calc(.55s + var(--i) * 45ms); }
+
+    /* Micro-interacción: el pin salta al pasar el cursor */
+    a:hover > .lg .lg-pin-g, .lg:hover .lg-pin-g { animation: lg-hop .6s cubic-bezier(.34, 1.4, .64, 1) !important; }
+  }
+  @keyframes lg-draw { from { stroke-dashoffset: 1; } to { stroke-dashoffset: 0; } }
+  @keyframes lg-drop {
+    0% { opacity: 0; transform: translateY(-70%) scale(.9); animation-timing-function: cubic-bezier(.55, 0, .9, .4); }
+    10% { opacity: 1; }
+    55% { transform: translateY(0) scale(1.08, .86); animation-timing-function: cubic-bezier(.22, 1, .36, 1); }
+    75% { transform: translateY(-7%) scale(.97, 1.04); }
+    100% { opacity: 1; transform: none; }
+  }
+  @keyframes lg-letter { from { opacity: 0; transform: translateX(-6px); } to { opacity: 1; transform: none; } }
+  @keyframes lg-hop { 0%, 100% { transform: none; } 40% { transform: translateY(-14%) scale(1.02, .98); } 70% { transform: translateY(0) scale(1.05, .92); } }
+</style>
+
+<script>
+  const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  function play(el: Element) {
+    el.classList.add('is-anim');
+    setTimeout(() => { el.classList.add('is-done'); el.classList.remove('is-anim'); }, 1700);
+  }
+  const io = new IntersectionObserver((entries) => {
+    entries.forEach((e) => { if (e.isIntersecting) { io.unobserve(e.target); reduce ? e.target.classList.add('is-done') : play(e.target); } });
+  }, { threshold: 0.6 });
+  document.querySelectorAll('.lg[data-logo-anim="view"]').forEach((el) => {
+    const r = el.getBoundingClientRect();
+    if (r.top < innerHeight && r.bottom > 0) { el.classList.add('is-done'); return; } // ya visible al cargar
+    io.observe(el);
+  });
+</script>

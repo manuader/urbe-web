@@ -1,0 +1,186 @@
+---
+import Base from '../layouts/Base.astro';
+import PageHero from '../components/PageHero.astro';
+import SectionHead from '../components/SectionHead.astro';
+import PresenceMap from '../components/demos/PresenceMap.astro';
+import Evidence from '../components/Evidence.astro';
+import Stat from '../components/Stat.astro';
+import CtaBand from '../components/CtaBand.astro';
+import Icon from '../components/Icon.astro';
+import { site, offices, milestones, leadership, credentials, corporateStats, teamSize } from '../data/site';
+---
+<Base title="Quiénes somos" description="Urbetrack es la marca de Pagustech S.R.L., empresa argentina de 2007 con oficinas en México, Colombia, Chile y España. Software, IoT, IA y consultoría para servicios urbanos y flotas.">
+  <PageHero
+    crumbs={[{ href: '/', label: 'Inicio' }, { label: 'Empresa' }]}
+    kicker="Quiénes somos"
+    light="Tecnología y consultoría"
+    bold="para operaciones que se miden."
+    lead="Desde 2007 diseñamos software, instalamos dispositivos y acompañamos a gobiernos, prestadores y empresas a gestionar su operación con evidencia."
+    image="/img/iswa-2025-stand.webp"
+    imageAlt="Stand de Urbetrack en el Congreso Mundial ISWA 2025 en Buenos Aires"
+  />
+
+  <section class="section sf-blanco" aria-labelledby="e-what">
+    <div class="wrap what">
+      <SectionHead id="e-what" kicker="Lo que hacemos" light="Vendemos evidencia," bold="no solo tecnología." lead="Cada contenedor, cada ruta y cada evento quedan registrados y se pueden verificar. Esa es la base para decidir mejor y para confiar en lo que se paga." />
+      <div class="what__body" data-rv>
+        <p>Urbetrack es una suite de cuatro capas: software SaaS, dispositivos IoT, datos con inteligencia artificial y consultoría. La combinación permite algo que un sistema de rastreo solo no logra: <strong>certificar el trabajo realizado</strong>, no solo el recorrido.</p>
+        <p>Nacimos en la higiene urbana de la Ciudad de Buenos Aires y llevamos el mismo stack a flotas de logística, oil &amp; gas, minería y construcción, donde la seguridad y el combustible pesan tanto como la trazabilidad.</p>
+        <blockquote class="what__q"><p>“No adivinamos, verificamos.”</p><Evidence ev={{ level: 'declarado', note: 'frase de marca de Urbetrack' }} /></blockquote>
+      </div>
+    </div>
+  </section>
+
+  <section class="section--tight sf-blanco" aria-labelledby="e-film">
+    <div class="wrap film">
+      <div class="film__copy">
+        <p class="kicker">Urbetrack en 20 segundos</p>
+        <h2 class="t-mix t-h3" id="e-film">Una ciudad se mide <b class="v">cuadra por cuadra.</b></h2>
+        <p class="t-small t-muted">Film de marca producido con el sistema visual de Urbetrack. Sin sonido. Unidad y valores ilustrativos.</p>
+      </div>
+      <figure class="film__media">
+        <video id="film-empresa" muted playsinline loop preload="none" poster="/video/manifiesto-16x9-poster.jpg" aria-label="Film de marca: una unidad informa su trabajo, la evidencia de cada levantamiento, las cifras de la empresa, sus países y la certificación ISO">
+          <source src="/video/manifiesto-16x9.webm" type="video/webm" />
+          <source src="/video/manifiesto-16x9.mp4" type="video/mp4" />
+        </video>
+        <button type="button" class="film__btn" data-video-toggle="film-empresa" aria-pressed="true" aria-label="Reproducir video"><Icon name="play" size={22} class="i-play" /><Icon name="pause" size={22} class="i-pause" /></button>
+      </figure>
+    </div>
+  </section>
+
+  <section class="section--tight sf-estudio" aria-label="Cifras">
+    <div class="wrap">
+      <ul class="nums" role="list">
+        {corporateStats.map((m) => <li><Stat m={m} /></li>)}
+        <li><Stat m={{ prefix: teamSize.prefix, value: teamSize.value, label: teamSize.label, evidence: teamSize.evidence }} count={false} /></li>
+      </ul>
+    </div>
+  </section>
+
+  <section class="section sf-blanco" aria-labelledby="e-geo">
+    <div class="wrap geo">
+      <SectionHead id="e-geo" kicker="Presencia" light="Cinco oficinas," bold="un mismo equipo." />
+      <div class="geo__grid">
+        <PresenceMap />
+        <ul class="geo__list" role="list">
+          {offices.map((o) => (
+            <li>
+              <p class="geo__c"><img src={o.flag} alt="" width="22" height="22" loading="lazy" />{o.country} · <span>{o.role}</span></p>
+              <p class="t-small">{o.address}, {o.city}</p>
+              <p class="t-small"><a href={`tel:${o.phone.replace(/\s/g, '')}`}>{o.phone}</a></p>
+              <Evidence ev={o.evidence} />
+            </li>
+          ))}
+        </ul>
+      </div>
+      <p class="t-small t-muted geo__note">El CEO mencionó en 2024 operaciones en Honduras; no hay oficina ni caso publicado, por eso no figura en el mapa.</p>
+    </div>
+  </section>
+
+  <section class="section sf-estudio" aria-labelledby="e-hist">
+    <div class="wrap">
+      <SectionHead id="e-hist" kicker="Trayectoria" light="Hitos que" bold="se pueden verificar." />
+      <ol class="hist" role="list">
+        {milestones.map((m, i) => (
+          <li data-rv style={`--d:${i * 0.05}s`}>
+            <span class="hist__y num">{m.year}</span>
+            <p>{m.text}</p>
+            <Evidence ev={m.evidence} short />
+          </li>
+        ))}
+      </ol>
+    </div>
+  </section>
+
+  <section class="section sf-blanco" aria-labelledby="e-team">
+    <div class="wrap team">
+      <div>
+        <SectionHead id="e-team" kicker="Equipo" light="Ingeniería, operaciones" bold="y consultoría." lead="Ingenieros de software, especialistas en telemetría, ingenieros ambientales, geógrafos y sociólogos trabajan con cada cliente, desde el relevamiento hasta la mejora continua." />
+        <ul class="lead__list" role="list">
+          {leadership.map((l) => <li><b>{l.name}</b><span>{l.role}</span></li>)}
+        </ul>
+        <p class="t-micro t-muted">Cargos según fuentes públicas y la Política de la Calidad (2025).</p>
+      </div>
+      <figure class="team__fig" data-rv>
+        <img src="/img/iswa-2025-ader.webp" alt="Pablo Ader, CEO de Urbetrack, en su charla en ISWA 2025" width="900" height="600" loading="lazy" />
+        <figcaption class="t-micro t-muted">Pablo Ader en “El Nuevo Pulso del Aseo Urbano”, ISWA 2025.</figcaption>
+      </figure>
+    </div>
+  </section>
+
+  <section class="section sf-niebla" aria-labelledby="e-cred">
+    <div class="wrap">
+      <SectionHead id="e-cred" kicker="Respaldo" light="Certificaciones," bold="premios y auditorías." />
+      <ul class="cred" role="list">
+        {credentials.map((c) => (
+          <li class="card">
+            {c.img && <img src={c.img} alt="" width="120" height="40" loading="lazy" />}
+            <h3 class="t-h4">{c.title}</h3>
+            <p class="t-small t-muted">{c.detail}</p>
+            <Evidence ev={c.evidence} />
+          </li>
+        ))}
+      </ul>
+      <p class="t-small t-muted cred__note">Alianzas: SONDA (integradora regional, 2023), partner local de Sensoneo en sensores de llenado, piloto con el BID en Quilmes (2025) y socio de CESSI. Sin evidencia de ISO 27001, 14001 o 45001: no las declaramos.</p>
+    </div>
+  </section>
+
+  <section class="section sf-tinta" id="trabaja" aria-labelledby="e-jobs">
+    <div class="wrap jobs">
+      <SectionHead id="e-jobs" kicker="Trabaja con nosotros" light="Construye tecnología" bold="que se ve en la calle." lead="Buscamos personas para desarrollo, operaciones, instalaciones, consultoría y comercial en los países donde operamos." />
+      <div class="jobs__cta">
+        <a class="btn btn--ghost" href={site.careersUrl} rel="noopener">Ver búsquedas abiertas <Icon name="external" size={16} /></a>
+        <a class="link-arrow" href="mailto:rrhh@urbetrack.com"><span>rrhh@urbetrack.com</span><Icon name="arrow" /></a>
+      </div>
+    </div>
+  </section>
+
+  <CtaBand source="empresa" id="demo-empresa" />
+</Base>
+
+<style>
+  .what { display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 7fr); gap: clamp(40px, 6vw, 96px); align-items: start; }
+  .what__body { display: grid; gap: 18px; font-size: 1.1rem; color: var(--u-texto-suave); max-width: 62ch; }
+  .what__body strong { color: var(--u-texto); }
+  .what__q { margin: 8px 0 0; padding-left: 20px; border-left: 3px solid var(--u-violeta); display: grid; gap: 10px; justify-items: start; }
+  .what__q p { font-size: 1.8rem; font-weight: 300; letter-spacing: -.02em; color: var(--u-texto); }
+  .film { display: grid; grid-template-columns: minmax(0, 4fr) minmax(0, 8fr); gap: clamp(32px, 5vw, 72px); align-items: center; }
+  .film__copy { display: grid; gap: 14px; }
+  .film__media { position: relative; border-radius: 20px; overflow: hidden; background: var(--u-tinta); box-shadow: var(--u-sombra); }
+  .film__media video { width: 100%; aspect-ratio: 16 / 9; object-fit: cover; }
+  .film__btn { position: absolute; left: 16px; bottom: 16px; width: 52px; height: 52px; border-radius: 50%; border: 0; display: grid; place-items: center; background: rgba(255,255,255,.92); color: var(--u-violeta); box-shadow: 0 8px 20px -8px rgba(0,0,0,.5); }
+  .film__btn .i-pause { display: none; }
+  .film__btn[aria-pressed="false"] .i-pause { display: block; }
+  .film__btn[aria-pressed="false"] .i-play { display: none; }
+  .film__btn:hover { background: #fff; }
+  .nums { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 24px; }
+  .geo__grid { display: grid; grid-template-columns: minmax(0, 7fr) minmax(0, 5fr); gap: clamp(32px, 5vw, 72px); align-items: center; margin-top: 32px; }
+  .geo__list { display: grid; gap: 0; }
+  .geo__list li { display: grid; gap: 4px; justify-items: start; padding: 16px 0; border-bottom: 1px solid var(--u-linea); }
+  .geo__c { display: flex; align-items: center; gap: 8px; font-weight: 800; color: var(--u-texto); }
+  .geo__c span { font-weight: 600; color: var(--u-texto-suave); font-size: var(--fs-small); }
+  .geo__c img { border-radius: 50%; }
+  .geo__list a { color: var(--u-violeta); font-weight: 600; text-decoration: none; }
+  .geo__note { margin-top: 20px; }
+  .hist { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 16px; margin-top: 36px; }
+  .hist li { display: grid; gap: 10px; justify-items: start; align-content: start; padding: 22px; border-radius: var(--r-card); background: #fff; border: 1px solid var(--u-linea); }
+  .hist__y { font-size: 2rem; font-weight: 800; letter-spacing: -.04em; color: var(--u-violeta); line-height: 1; }
+  .hist p { font-size: var(--fs-small); color: var(--u-texto); }
+  .team { display: grid; grid-template-columns: minmax(0, 6fr) minmax(0, 6fr); gap: clamp(40px, 6vw, 96px); align-items: center; }
+  .lead__list { display: grid; gap: 0; margin: 28px 0 10px; }
+  .lead__list li { display: flex; justify-content: space-between; gap: 16px; padding: 14px 0; border-bottom: 1px solid var(--u-linea); }
+  .lead__list b { color: var(--u-texto); }
+  .lead__list span { color: var(--u-texto-suave); font-size: var(--fs-small); text-align: right; }
+  .team__fig { display: grid; gap: 10px; }
+  .team__fig img { border-radius: var(--r-glass); aspect-ratio: 3 / 2; object-fit: cover; width: 100%; }
+  .cred { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 16px; margin-top: 36px; }
+  .cred li { display: grid; gap: 8px; padding: 22px; justify-items: start; align-content: start; }
+  .cred img { height: 36px; width: auto; margin-bottom: 4px; }
+  .cred h3 { color: var(--u-texto); }
+  .cred__note { margin-top: 24px; max-width: 90ch; }
+  .jobs { display: grid; grid-template-columns: 1fr auto; gap: 32px; align-items: end; }
+  .jobs__cta { display: flex; flex-wrap: wrap; gap: 16px; align-items: center; }
+  @media (max-width: 1100px) { .nums { grid-template-columns: repeat(3, minmax(0, 1fr)); } .hist, .cred { grid-template-columns: 1fr 1fr; } }
+  @media (max-width: 900px) { .what, .geo__grid, .team, .jobs, .film { grid-template-columns: 1fr; } }
+  @media (max-width: 560px) { .nums { grid-template-columns: 1fr 1fr; } .hist, .cred { grid-template-columns: 1fr; } }
+</style>

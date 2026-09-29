@@ -1,0 +1,214 @@
+---
+import Base from '../layouts/Base.astro';
+import PageHero from '../components/PageHero.astro';
+import SectionHead from '../components/SectionHead.astro';
+import CtaBand from '../components/CtaBand.astro';
+import Evidence from '../components/Evidence.astro';
+import Icon from '../components/Icon.astro';
+import Connect from '../components/demos/Connect.astro';
+import type { IconName } from '../data/types';
+
+const layers: { n: string; t: string; d: string; items: string[]; icon: IconName }[] = [
+  { n: '01', t: 'Software', icon: 'layers', d: 'Plataforma SaaS en la nube, disponible 7x24 y multiplataforma, con apps móviles propias y cientos de reportes.', items: ['Monitor Online, Histórico y de Calidad', 'Simulador 3D de recorridos', 'Urbetrack GO, Urbe+ y Urbetrack Lite'] },
+  { n: '02', t: 'Dispositivos', icon: 'cpu', d: 'Hardware IoT instalado en vehículos, contenedores y puntos de control.', items: ['GPS, computadora de a bordo y caja negra', 'RFID en contenedores y antenas en tolva', 'Sensores de trabajo y de llenado, cámaras, comunicación satelital'] },
+  { n: '03', t: 'Datos e IA', icon: 'chart', d: 'Telemetría M2M, geomática y business intelligence con análisis OLAP.', items: ['Video-Analítica con micro-clips por evento', 'IA en cámaras: tipo de residuo, llenado y vaciado', 'ADAS y DSM para seguridad vial'] },
+  { n: '04', t: 'Consultoría', icon: 'compass', d: 'Equipo interdisciplinario de ingenieros ambientales, geógrafos y sociólogos.', items: ['Diseño y digitalización de planes de trabajo', 'Rutas óptimas y gestión integral de residuos', 'Capacitación, implementación y soluciones a medida'] },
+];
+
+const modules = [
+  { g: 'Monitoreo', items: [
+    { t: 'Monitor Online', d: 'Posición, velocidad, estado de sensores y eventos de cada unidad en tiempo real, con alertas por reglas configurables.', img: '/img/mod-monitor-online.webp' },
+    { t: 'Monitor Histórico', d: 'Reconstrucción de cualquier recorrido pasado: por dónde pasó la unidad, a qué hora y qué eventos registró.', img: '/img/mod-monitor-historico.webp' },
+    { t: 'Monitor de Calidad', d: 'Cumplimiento de ruta y servicio: lo planificado contra lo ejecutado, por ruta, prestador y turno.', img: '/img/mod-monitor-calidad.webp' },
+    { t: 'Simulador 3D', d: 'Reconstrucción 3D del recorrido sobre cartografía digital, para auditar accidentes y maniobras.', img: '/img/mod-simulador-3d.webp' },
+  ] },
+  { g: 'Rutas y campo', items: [
+    { t: 'Planes de trabajo y rutas', d: 'Rutas fijas, a demanda (por incidencias) o inteligentes (por llenado de contenedores), con dotación y vehículo asignados.', img: '/img/rutas-inteligentes.webp' },
+    { t: 'Incidencias', d: 'Se geolocalizan, se asignan y se cierran con evidencia. Entran por app, integración con terceros, importación masiva o carga web.', img: '/img/mod-incidencias.webp' },
+    { t: 'Urbetrack GO y Urbe+', d: 'Guía giro a giro y certificación de tareas en el lugar; incidencias con foto, hojas de ruta y censos.', img: '/img/app-1.webp' },
+  ] },
+  { g: 'Telemetría y reportes', items: [
+    { t: 'Sensores de trabajo', d: 'Toma de fuerza, encendido de barredoras, compactación y flusher: la unidad informa qué trabajo hizo, no solo dónde estuvo.', img: '/img/tel-compactacion.webp' },
+    { t: 'RFID y certificación', d: 'Tag en cada contenedor y antena en la tolva. Es la base de la certificación por telemetría.', img: '/img/tel-rfid-contenedor.webp' },
+    { t: 'Reportes y Cierre de Servicio', d: 'Cientos de reportes y tableros con BI OLAP. El Cierre de Servicio certifica el turno y habilita el pago por resultados.', img: '/img/mod-pantalla.webp' },
+  ] },
+  { g: 'Seguridad e integración', items: [
+    { t: 'Movilidad Segura y Video-Analítica', d: 'ADAS y DSM detectan el evento y la plataforma guarda el micro-clip, vinculado a unidad, conductor, lugar y hora.', img: '/img/hw-videoanalitica.webp' },
+    { t: 'Control de Combustible', d: 'Por playa de expendio, estimación o telemetría a bordo, con bloqueo de cargas no autorizadas.', img: '/img/fleet-escritorio.webp' },
+    { t: 'Mantenimiento', d: 'Preventivo y correctivo, historial por unidad y tablero Kanban para el taller.', img: '/img/fleet-taller.webp' },
+    { t: 'Integraciones', d: 'ERP, CRM, software de despacho y de planta, balanzas y rastreo de terceros. SAP en la Ciudad de Buenos Aires desde 2019.', img: '/img/integracion.webp' },
+  ] },
+];
+
+const hardware: { t: string; where: string; what: string; icon: IconName }[] = [
+  { t: 'GPS y computadora de a bordo', where: 'Vehículo', what: 'Posición, velocidad y eventos', icon: 'truck' },
+  { t: 'Caja negra', where: 'Vehículo', what: 'Registro segundo a segundo, sin depender de la red', icon: 'lock' },
+  { t: 'Comunicación satelital', where: 'Vehículo', what: 'Operación y asistencia sin cobertura celular', icon: 'satellite' },
+  { t: 'Tag y antena RFID', where: 'Contenedor y tolva', what: 'Identidad del contenedor y cada levantamiento', icon: 'rfid' },
+  { t: 'Tarjeta RFID de conductor', where: 'Cabina', what: 'Login, lista blanca y presentismo', icon: 'users' },
+  { t: 'Sensores de trabajo', where: 'Compactador, roll-off, barredora, hidrolavadora', what: 'Compactación, toma de fuerza, encendido y flusher', icon: 'gauge' },
+  { t: 'Sensor volumétrico', where: 'Contenedor', what: 'Llenado: vacío, semilleno o lleno', icon: 'container' },
+  { t: 'Sonda y puerto CAN', where: 'Vehículo', what: 'Consumo de combustible', icon: 'fuel' },
+  { t: 'Cámaras ADAS y DSM', where: 'Vehículo', what: 'Entorno y estado del conductor', icon: 'camera' },
+];
+
+const apps = [
+  { t: 'Urbetrack Lite', d: 'Flota en tiempo real, reportes, eventos, documentos y mantenimiento preventivo, en el celular.', ev: { level: 'comprobado' as const, note: 'Play Store: más de 1.000 descargas', sources: [{ label: 'Google Play', url: 'https://play.google.com/store/apps/details?id=com.urbetracklite' }] } },
+  { t: 'Urbetrack GO', d: 'App del conductor: planificación del servicio, navegación giro a giro y certificación de trabajos en el lugar.', ev: { level: 'comprobado' as const, note: 'publicada en Google Play', sources: [{ label: 'Google Play', url: 'https://play.google.com/store/apps/details?id=com.urbetrack.go' }] } },
+  { t: 'Urbe+', d: 'Reclamos, incidencias y tareas en campo, con categoría, fotos, hoja de ruta y mapa de vehículos y mobiliario.', ev: { level: 'validar' as const, note: 'equivalencia con la app "Urbetrack Plus"' } },
+];
+---
+<Base title="Plataforma: software, dispositivos, datos e IA" description="No es un GPS: es una suite de cuatro capas. Monitor Online, Histórico y de Calidad, rutas, incidencias, sensores de trabajo, RFID, Video-Analítica, combustible e integraciones.">
+  <PageHero
+    crumbs={[{ href: '/', label: 'Inicio' }, { label: 'Plataforma' }]}
+    kicker="La plataforma"
+    light="No es un GPS."
+    bold="Es una suite de cuatro capas."
+    lead="Software, dispositivos, datos con IA y consultoría trabajan juntos. Cada capa suma lo que la anterior no puede ver por sí sola."
+    cta={{ href: '#contacto', label: 'Solicitar demo', source: 'plataforma' }}
+    secondary={{ href: '#modulos', label: 'Ver módulos' }}
+    image="/img/mod-monitoreo.webp"
+    imageAlt="Operadora en un centro de control frente a una pared de pantallas con el mapa de la flota y cámaras de unidades"
+  />
+
+  <section class="section sf-blanco" aria-labelledby="pl-layers">
+    <div class="wrap lay__grid">
+      <SectionHead id="pl-layers" kicker="Cuatro capas" light="Cada capa responde" bold="una pregunta distinta." lead="Dónde está y qué hizo cada unidad. Qué contenedor se levantó. Qué evento requiere atención. Qué conviene cambiar en la operación." />
+      <ol class="lay" role="list" data-lay>
+        {layers.map((l, i) => (
+          <li class="lay__i" data-rv style={`--d:${i * 0.08}s; --z:${4 - i}`}>
+            <span class="tile-ico"><Icon name={l.icon} /></span>
+            <div>
+              <p class="lay__n num">{l.n}</p>
+              <h3 class="t-h3">{l.t}</h3>
+              <p class="t-muted t-small">{l.d}</p>
+              <ul class="checks">{l.items.map((x) => <li>{x}</li>)}</ul>
+            </div>
+          </li>
+        ))}
+      </ol>
+    </div>
+  </section>
+
+  <section class="section sf-estudio" aria-labelledby="pl-conn">
+    <div class="wrap">
+      <SectionHead id="pl-conn" kicker="Cómo se conecta" light="Todo llega" bold="al mismo lugar." align="center" class="pl-center" />
+      <div class="pl-conn"><Connect /></div>
+    </div>
+  </section>
+
+  <section class="section sf-blanco" id="modulos" aria-labelledby="pl-mod">
+    <div class="wrap">
+      <SectionHead id="pl-mod" kicker="Módulos" light="Lo que ve cada equipo," bold="módulo por módulo." lead="Nombres de producto reales. Las capturas muestran la interfaz; los valores pueden ser de ejemplo." />
+      <div class="tabs mod__tabs" role="tablist" aria-label="Grupos de módulos" data-tabs>
+        {modules.map((m, i) => <button class="tab" role="tab" id={`mt-${i}`} aria-controls={`mp-${i}`} aria-selected={i === 0 ? 'true' : 'false'} tabindex={i === 0 ? 0 : -1}>{m.g}</button>)}
+      </div>
+      {modules.map((m, i) => (
+        <div class="mod__panel" role="tabpanel" id={`mp-${i}`} aria-labelledby={`mt-${i}`} hidden={i !== 0}>
+          <ul class="mod__grid" role="list">
+            {m.items.map((it) => (
+              <li class="card mod__c">
+                <figure class:list={{ 'is-contain': /mod-monitor|mod-simulador|app-|hw-|integracion/.test(it.img) }}><img src={it.img} alt={`${it.t}: captura o ilustración`} width="800" height="500" loading="lazy" decoding="async" /></figure>
+                <div><h3 class="t-h4">{it.t}</h3><p class="t-small t-muted">{it.d}</p></div>
+              </li>
+            ))}
+          </ul>
+        </div>
+      ))}
+    </div>
+  </section>
+
+  <section class="section sf-niebla" aria-labelledby="pl-hw">
+    <div class="wrap">
+      <div class="hw__head">
+        <SectionHead id="pl-hw" kicker="Dispositivos" light="Qué se instala" bold="y qué registra." lead="Cada equipo suma una señal. Juntas, cuentan qué pasó en la calle con precisión de contenedor, unidad y minuto." />
+        <figure class="hw__fig" data-rv><img src="/img/camion-sensores.webp" alt="Esquema de un camión recolector con la ubicación de GPS, sensor de compactación, antena RFID, cámaras ADAS, DSM y de retroceso" width="1200" height="500" loading="lazy" /></figure>
+      </div>
+      <ul class="hw" role="list">
+        {hardware.map((h, i) => (
+          <li class="card" data-rv style={`--d:${(i % 3) * 0.06}s`}>
+            <span class="tile-ico tile-ico--sm"><Icon name={h.icon} /></span>
+            <div><h3 class="t-h4">{h.t}</h3><p class="hw__w">{h.where}</p><p class="t-small t-muted">{h.what}</p></div>
+          </li>
+        ))}
+      </ul>
+    </div>
+  </section>
+
+  <section class="section sf-blanco" aria-labelledby="pl-apps">
+    <div class="wrap apps__grid">
+      <SectionHead id="pl-apps" kicker="Apps propias" light="La operación también" bold="se gestiona en la calle." lead="Conductores, cuadrillas y supervisores trabajan con apps móviles conectadas a la misma plataforma." />
+      <ul class="apps" role="list">
+        {apps.map((a) => (
+          <li class="card"><h3 class="t-h4">{a.t}</h3><p class="t-small t-muted">{a.d}</p><Evidence ev={a.ev} /></li>
+        ))}
+      </ul>
+    </div>
+  </section>
+
+  <section class="section sf-tinta" aria-labelledby="pl-trust">
+    <div class="wrap trust">
+      <SectionHead id="pl-trust" kicker="Continuidad y respaldo" light="Pensada para operaciones" bold="que no se detienen." />
+      <ul class="trust__list" role="list">
+        <li><Icon name="cloud" /><div><b>SaaS 7x24</b><p>Plataforma en la nube, accesible desde escritorio y móvil.</p><Evidence ev={{ level: 'declarado' }} /></div></li>
+        <li><Icon name="lock" /><div><b>Caja negra</b><p>Registro segundo a segundo en la unidad, sin depender de la red.</p><Evidence ev={{ level: 'declarado' }} /></div></li>
+        <li><Icon name="phone" /><div><b>Mesa de Ayuda 24x7</b><p>Soporte técnico, operaciones e instalaciones con laboratorio de desarrollo propio.</p><Evidence ev={{ level: 'declarado' }} /></div></li>
+        <li><Icon name="check" /><div><b>ISO 9001:2015</b><p>Diseño y desarrollo de software y servicios de telemedición, Argentina y España.</p><Evidence ev={{ level: 'comprobado', note: 'TÜV Rheinland', sources: [{ label: 'Certipedia', url: 'https://www.certipedia.com/quality_marks/9105078821?locale=en' }] }} /></div></li>
+      </ul>
+    </div>
+  </section>
+
+  <CtaBand source="plataforma" light="Mira la plataforma" bold="con tus datos." id="demo-plataforma" />
+</Base>
+
+<style>
+  .lay__grid { display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 7fr); gap: clamp(40px, 6vw, 96px); align-items: start; }
+  .lay { display: grid; gap: 12px; }
+  .lay__i { display: grid; grid-template-columns: auto 1fr; gap: 20px; padding: 24px; border-radius: var(--r-card); background: #fff; border: 1px solid var(--u-linea); box-shadow: 0 1px 0 #fff inset, 0 calc(var(--z) * 4px) calc(var(--z) * 10px) -12px rgba(110, 66, 153, .35); }
+  .lay__i > div { display: grid; gap: 8px; }
+  .lay__n { font-size: .8rem; font-weight: 800; color: var(--u-violeta); letter-spacing: .1em; }
+  .lay__i h3 { color: var(--u-texto); }
+  .lay__i .checks { margin-top: 6px; font-size: var(--fs-small); }
+  .pl-conn { margin-top: clamp(40px, 5vw, 72px); }
+  .mod__tabs { margin: 32px 0 28px; }
+  .mod__grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
+  .mod__panel:not([hidden]) { animation: fadein .5s var(--ease-out) both; }
+  @keyframes fadein { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+  .mod__c { display: grid; grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr); overflow: hidden; }
+  .mod__c figure { background: var(--u-niebla); min-height: 200px; }
+  .mod__c img { width: 100%; height: 100%; object-fit: cover; }
+  .mod__c figure.is-contain { background: radial-gradient(circle at 50% 40%, #fff, var(--u-lavanda)); }
+  .mod__c figure.is-contain img { object-fit: contain; padding: 14px; }
+  .mod__c > div { padding: 22px; display: grid; gap: 8px; align-content: center; }
+  .mod__c h3 { color: var(--u-texto); }
+  .hw__head { display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 7fr); gap: clamp(32px, 5vw, 72px); align-items: center; }
+  .hw__fig { border-radius: var(--r-glass); overflow: hidden; background: #fff; box-shadow: 0 0 0 1px var(--u-linea); }
+  .hw__fig img { width: 100%; height: auto; }
+  .hw { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; margin-top: 36px; }
+  .hw li { display: flex; gap: 14px; padding: 20px; align-items: flex-start; }
+  .hw h3 { color: var(--u-texto); }
+  .hw__w { font-size: var(--fs-micro); font-weight: 700; color: var(--u-violeta); margin: 2px 0 4px; }
+  .apps__grid { display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 7fr); gap: clamp(40px, 6vw, 96px); align-items: start; }
+  .apps { display: grid; gap: 12px; }
+  .apps li { display: grid; gap: 8px; padding: 22px 24px; justify-items: start; }
+  .apps h3 { color: var(--u-texto); }
+  .trust { display: grid; gap: 48px; }
+  .trust__list { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 24px; }
+  .trust__list li { display: grid; gap: 14px; align-content: start; padding-top: 20px; border-top: 1px solid var(--linea); }
+  .trust__list li > :global(svg) { color: var(--u-violeta-claro); }
+  .trust__list li div { display: grid; gap: 8px; justify-items: start; }
+  .trust__list b { font-size: 1.1rem; }
+  .trust__list p { font-size: var(--fs-small); color: var(--u-acero); }
+  @media (max-width: 1000px) {
+    .lay__grid, .apps__grid, .hw__head { grid-template-columns: 1fr; }
+    .mod__grid { grid-template-columns: 1fr; }
+    .hw { grid-template-columns: 1fr 1fr; }
+    .trust__list { grid-template-columns: 1fr 1fr; }
+  }
+  @media (max-width: 620px) { .hw, .trust__list { grid-template-columns: 1fr; } .mod__c { grid-template-columns: 1fr; } .mod__c figure { aspect-ratio: 16 / 9; } }
+</style>
+
+<script>
+  import { initTabs } from '../scripts/tabs';
+  initTabs();
+</script>

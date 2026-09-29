@@ -1,0 +1,188 @@
+---
+/**
+ * "Una sola verdad operativa": cada fuente de datos de la calle llega a la misma
+ * plataforma y de ahí a quien decide. Las líneas se dibujan al entrar en pantalla
+ * y un pulso recorre cada conexión (se apaga con movimiento reducido).
+ * Al enfocar o pasar sobre un nodo se resaltan sus conexiones reales.
+ */
+import Icon from '../Icon.astro';
+import type { IconName } from '../../data/types';
+
+const sources: { id: string; icon: IconName; t: string; d: string }[] = [
+  { id: 's1', icon: 'truck', t: 'Vehículos', d: 'GPS, computadora de a bordo y caja negra' },
+  { id: 's2', icon: 'container', t: 'Contenedores', d: 'Tag RFID y sensor de llenado' },
+  { id: 's3', icon: 'gauge', t: 'Equipos de trabajo', d: 'Compactación, toma de fuerza, barredora y flusher' },
+  { id: 's4', icon: 'camera', t: 'Cámaras', d: 'ADAS, DSM e IA para residuos' },
+  { id: 's5', icon: 'users', t: 'Personas', d: 'Tarjeta RFID del conductor, Urbetrack GO y Urbe+' },
+  { id: 's6', icon: 'plug', t: 'Sistemas y vecinos', d: 'Reclamos, ERP, balanzas y SAP' },
+];
+const outputs: { id: string; t: string; d: string; mod: string; from: string[] }[] = [
+  { id: 'o1', t: 'Operación', d: 'Ve la flota en vivo y recibe alertas por reglas', mod: 'Monitor Online', from: ['s1', 's2', 's3', 's4', 's5'] },
+  { id: 'o2', t: 'Control', d: 'Compara lo planificado con lo ejecutado', mod: 'Monitor de Calidad · Monitor Histórico', from: ['s1', 's2', 's3', 's6'] },
+  { id: 'o3', t: 'Contratos y pagos', d: 'Certifica el turno y respalda el pago', mod: 'Cierre de Servicio', from: ['s1', 's2', 's3', 's5'] },
+  { id: 'o4', t: 'Dirección', d: 'Decide frecuencias, rutas y flota con datos', mod: 'Reportes y BI', from: ['s1', 's2', 's3', 's4', 's5', 's6'] },
+];
+---
+<div class="cx" data-cx>
+  <svg class="cx__lines" aria-hidden="true" data-cx-svg>
+    <defs>
+      <linearGradient id="cx-g" x1="0" x2="1" y1="0" y2="0">
+        <stop offset="0" stop-color="#B79BD9" />
+        <stop offset="1" stop-color="#6E4299" />
+      </linearGradient>
+    </defs>
+    <g data-cx-paths></g>
+  </svg>
+
+  <ul class="cx__col cx__src" role="list" aria-label="Fuentes de datos">
+    {sources.map((s, i) => (
+      <li class="cx__node" tabindex="0" data-node={s.id} data-rv style={`--d:${i * 0.05}s`}>
+        <span class="tile-ico tile-ico--sm"><Icon name={s.icon} /></span>
+        <span><b>{s.t}</b><small>{s.d}</small></span>
+      </li>
+    ))}
+  </ul>
+
+  <div class="cx__hub" data-hub data-rv style="--d:.2s">
+    <div class="cx__core">
+      <img src="/brand/urbetrack-isotipo-color.svg" alt="" width="46" height="55" />
+    </div>
+    <p class="cx__hub-t">Plataforma Urbetrack</p>
+    <p class="cx__hub-d">SaaS en la nube, 7x24</p>
+  </div>
+
+  <ul class="cx__col cx__out" role="list" aria-label="Quién usa el dato">
+    {outputs.map((o, i) => (
+      <li class="cx__node cx__node--out" tabindex="0" data-node={o.id} data-from={o.from.join(' ')} data-rv style={`--d:${0.3 + i * 0.06}s`}>
+        <span><b>{o.t}</b><small>{o.d}</small><em>{o.mod}</em></span>
+      </li>
+    ))}
+  </ul>
+</div>
+
+<style>
+  .cx { position: relative; display: grid; grid-template-columns: minmax(0, 1fr) 220px minmax(0, 1fr); gap: clamp(40px, 7vw, 120px); align-items: center; }
+  .cx__lines { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; pointer-events: none; }
+  .cx__col { display: grid; gap: 10px; position: relative; z-index: 1; }
+  .cx__node {
+    display: flex; gap: 14px; align-items: center; padding: 14px 16px; border-radius: 14px; background: #fff;
+    border: 1px solid var(--u-linea); cursor: default; outline-offset: 2px;
+    transition: border-color var(--t-micro), box-shadow var(--t-medio) var(--ease-out), opacity var(--t-medio), transform var(--t-medio) var(--ease-out);
+  }
+  .cx__node b { display: block; font-size: .98rem; font-weight: 800; color: var(--u-texto); line-height: 1.25; }
+  .cx__node small { display: block; font-size: var(--fs-micro); font-weight: 500; color: var(--u-texto-suave); line-height: 1.4; }
+  .cx__node em { display: inline-block; margin-top: 8px; font-style: normal; font-size: .75rem; font-weight: 700; letter-spacing: .04em; color: var(--u-violeta); background: var(--u-lavanda); padding: 3px 9px; border-radius: 999px; }
+  .cx__node--out { padding: 18px 20px; }
+  .cx[data-focus] .cx__node { opacity: .38; }
+  .cx[data-focus] .cx__node.is-on { opacity: 1; border-color: var(--u-violeta-claro); box-shadow: var(--u-glow-v); transform: translateX(var(--nudge, 0)); }
+  .cx__src .cx__node.is-on { --nudge: 4px; }
+  .cx__out .cx__node.is-on { --nudge: -4px; }
+  .cx__hub { position: relative; z-index: 1; display: grid; justify-items: center; text-align: center; gap: 6px; }
+  .cx__core {
+    position: relative; width: 132px; height: 132px; border-radius: 50%; display: grid; place-items: center; background: #fff;
+    box-shadow: 0 0 0 1px rgba(110, 66, 153, .2), 0 0 0 14px rgba(239, 233, 246, .8), 0 30px 60px -24px rgba(110, 66, 153, .55);
+  }
+  .cx__core::after {
+    content: ""; position: absolute; inset: -14px; border-radius: 50%; border: 1.5px solid rgba(110, 66, 153, .35);
+    animation: cx-ring 3.2s var(--ease-out) infinite;
+  }
+  @keyframes cx-ring { 0% { transform: scale(.92); opacity: .9; } 100% { transform: scale(1.35); opacity: 0; } }
+  .cx__hub-t { font-weight: 800; color: var(--u-texto); margin-top: 18px; }
+  .cx__hub-d { font-size: var(--fs-micro); color: var(--u-texto-suave); font-weight: 600; }
+
+  :global(.cx-path) { fill: none; stroke: url(#cx-g); stroke-width: 1.6; opacity: .55; transition: opacity var(--t-medio), stroke-width var(--t-medio); }
+  :global(.cx-flow) { fill: none; stroke: var(--u-violeta); stroke-width: 2.4; stroke-linecap: round; stroke-dasharray: 16 984; opacity: 0; }
+  :global(.cx.is-drawn .cx-flow) { opacity: .9; animation: cx-flow 2.8s linear infinite; animation-delay: var(--fd, 0s); }
+  :global(.cx[data-focus] .cx-path) { opacity: .12; }
+  :global(.cx[data-focus] .cx-path.is-on) { opacity: 1; stroke-width: 2.2; }
+  :global(.cx[data-focus] .cx-flow) { opacity: .1; }
+  :global(.cx[data-focus] .cx-flow.is-on) { opacity: 1; }
+  @keyframes cx-flow { from { stroke-dashoffset: 1000; } to { stroke-dashoffset: 0; } }
+
+  @media (max-width: 960px) {
+    .cx { grid-template-columns: 1fr; gap: 28px; }
+    .cx__lines { display: none; }
+    .cx__src { grid-template-columns: 1fr 1fr; }
+    .cx__src .cx__node { flex-direction: column; align-items: flex-start; gap: 10px; }
+    .cx__hub { padding-block: 12px; }
+    .cx__hub::before, .cx__hub::after { content: ""; position: absolute; left: 50%; width: 2px; height: 24px; background: linear-gradient(var(--u-lavanda-2), var(--u-violeta)); }
+    .cx__hub::before { top: -24px; }
+    .cx__hub::after { bottom: -24px; }
+    .cx__out { grid-template-columns: 1fr 1fr; }
+  }
+  @media (max-width: 520px) {
+    .cx__src, .cx__out { grid-template-columns: 1fr; }
+    .cx__src .cx__node { flex-direction: row; align-items: center; }
+  }
+  @media (prefers-reduced-motion: reduce) { .cx__core::after { display: none; } }
+</style>
+
+<script>
+  document.querySelectorAll<HTMLElement>('[data-cx]').forEach(init);
+
+  function init(root: HTMLElement) {
+    const svg = root.querySelector<SVGSVGElement>('[data-cx-svg]')!;
+    const g = root.querySelector<SVGGElement>('[data-cx-paths]')!;
+    const hub = root.querySelector<HTMLElement>('.cx__core')!;
+    const srcs = [...root.querySelectorAll<HTMLElement>('.cx__src [data-node]')];
+    const outs = [...root.querySelectorAll<HTMLElement>('.cx__out [data-node]')];
+    const NS = 'http://www.w3.org/2000/svg';
+
+    function draw() {
+      if (getComputedStyle(svg).display === 'none') return;
+      const R = root.getBoundingClientRect();
+      const H = hub.getBoundingClientRect();
+      const hx1 = H.left - R.left, hx2 = H.right - R.left, hy = H.top - R.top + H.height / 2;
+      g.innerHTML = '';
+      const add = (d: string, ids: string, delay: number) => {
+        const p = document.createElementNS(NS, 'path');
+        p.setAttribute('d', d); p.setAttribute('class', 'cx-path'); p.dataset.ids = ids;
+        const f = document.createElementNS(NS, 'path');
+        f.setAttribute('d', d); f.setAttribute('class', 'cx-flow'); f.setAttribute('pathLength', '1000'); f.dataset.ids = ids;
+        f.style.setProperty('--fd', `${delay}s`);
+        g.append(p, f);
+      };
+      srcs.forEach((n, i) => {
+        const b = n.getBoundingClientRect();
+        const x = b.right - R.left, y = b.top - R.top + b.height / 2, dx = (hx1 - x) * 0.55;
+        add(`M${x} ${y} C${x + dx} ${y} ${hx1 - dx} ${hy} ${hx1} ${hy}`, n.dataset.node!, i * 0.35);
+      });
+      outs.forEach((n, i) => {
+        const b = n.getBoundingClientRect();
+        const x = b.left - R.left, y = b.top - R.top + b.height / 2, dx = (x - hx2) * 0.55;
+        add(`M${hx2} ${hy} C${hx2 + dx} ${hy} ${x - dx} ${y} ${x} ${y}`, `${n.dataset.node} ${n.dataset.from}`, 1.2 + i * 0.3);
+      });
+    }
+    draw();
+    new ResizeObserver(draw).observe(root);
+
+    // Resaltado de conexiones reales
+    function focus(id: string | null) {
+      if (!id) { delete root.dataset.focus; root.querySelectorAll('.is-on').forEach((e) => e.classList.remove('is-on')); return; }
+      root.dataset.focus = id;
+      const node = root.querySelector<HTMLElement>(`[data-node="${id}"]`)!;
+      const isOut = node.classList.contains('cx__node--out');
+      const on = new Set<string>([id]);
+      if (isOut) node.dataset.from!.split(' ').forEach((s) => on.add(s));
+      else outs.forEach((o) => { if (o.dataset.from!.split(' ').includes(id)) on.add(o.dataset.node!); });
+      root.querySelectorAll<HTMLElement>('[data-node]').forEach((n) => n.classList.toggle('is-on', on.has(n.dataset.node!)));
+      g.querySelectorAll<SVGPathElement>('path').forEach((p) => {
+        const ids = p.dataset.ids!.split(' ');
+        const lit = isOut ? (ids[0] === id || (on.has(ids[0]) && ids.length === 1)) : (ids[0] === id || (ids.includes(id) && on.has(ids[0])));
+        p.classList.toggle('is-on', lit);
+      });
+    }
+    root.querySelectorAll<HTMLElement>('[data-node]').forEach((n) => {
+      n.addEventListener('mouseenter', () => focus(n.dataset.node!));
+      n.addEventListener('focus', () => focus(n.dataset.node!));
+      n.addEventListener('mouseleave', () => focus(null));
+      n.addEventListener('blur', () => focus(null));
+    });
+
+    // Las líneas se "encienden" al entrar en pantalla
+    const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+    new IntersectionObserver(([e], io) => {
+      if (e.isIntersecting) { if (!reduce) root.classList.add('is-drawn'); io.disconnect(); }
+    }, { threshold: 0.3 }).observe(root);
+  }
+</script>

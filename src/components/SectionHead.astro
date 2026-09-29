@@ -1,0 +1,34 @@
+---
+/** Kicker + titular mixto + filete + bajada. Una idea por titular. */
+interface Props {
+  kicker?: string;
+  light?: string;
+  bold?: string;
+  after?: string;
+  lead?: string;
+  level?: 'h1' | 'h2';
+  size?: 'display' | 'h1' | 'h2';
+  align?: 'left' | 'center';
+  id?: string;
+  class?: string;
+  violet?: boolean;
+}
+const { kicker, light = '', bold = '', after = '', lead, level = 'h2', size = 'h2', align = 'left', id, class: cls, violet = true } = Astro.props;
+const Tag = level;
+---
+<header class:list={['sh', `sh--${align}`, cls]}>
+  {kicker && <p class="kicker" data-rv>{kicker}</p>}
+  <Tag class:list={['t-mix', `t-${size}`]} id={id} data-rv style="--d:.06s">
+    {light}{light && bold ? ' ' : ''}<b class:list={{ v: violet }}>{bold}</b>{after}
+  </Tag>
+  <hr class:list={['rule', { 'rule--center': align === 'center' }]} data-rv />
+  {lead && <p class="t-lead" data-rv style="--d:.2s" set:html={lead} />}
+  <slot />
+</header>
+<style>
+  .sh { display: grid; gap: 22px; justify-items: start; }
+  .sh--center { justify-items: center; text-align: center; }
+  .sh--center .t-lead { margin-inline: auto; }
+  .sh .t-mix { max-width: 18ch; }
+  .sh--center .t-mix { max-width: 20ch; }
+</style>
