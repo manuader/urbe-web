@@ -5,7 +5,7 @@ El movimiento del sitio tiene una sola función: **explicar cómo funciona Urbet
 ## Principios
 
 1. **Una orquestación por vista.** Nunca hay dos demos animándose a la vez en pantalla. Las demos autónomas solo corren cuando están visibles (≥ 35 %) y la pestaña está activa.
-2. **El contenido no espera a la animación.** Única excepción: la intro de marca de la home (≤ 2,7 s, una vez por sesión, salteable, solo CSS para que nunca quede trabada). El hero se entiende completo sin que la demo termine. Las entradas del primer pantallazo usan CSS puro (no dependen de que cargue JavaScript) y duran menos de un segundo.
+2. **El contenido no espera a la animación.** Única excepción: la intro de marca de la home (~3 s, una vez por sesión, salteable, solo CSS para que nunca quede trabada). El hero se entiende completo sin que la demo termine. Las entradas del primer pantallazo usan CSS puro (no dependen de que cargue JavaScript) y duran menos de un segundo.
 3. **No se secuestra el scroll.** Las secuencias fijas (`SignalSequence`) dejan que la página avance normalmente; solo cambian de estado según qué paso está en lectura.
 4. **Precisión antes que espectáculo.** Desplazamientos cortos (16–18 px), sin rebotes grandes, sin destellos, sin parallax decorativo.
 5. **Naranja = atención.** Lo único que pulsa en naranja es un evento que requiere acción (contenedor desbordado, alerta DSM). Si todo pulsa, nada alerta.
@@ -28,7 +28,7 @@ El movimiento del sitio tiene una sola función: **explicar cómo funciona Urbet
 
 | Animación | Dónde | Qué explica | Disparador | Movimiento reducido |
 |---|---|---|---|---|
-| Intro de marca: U que se traza, pin que cae con onda, logotipo letra por letra, filete que se llena como barra de carga, cortina que sube | Home, antes del hero (1 vez por sesión, ~2,7 s, se saltea con clic o tecla; `?intro=1` la fuerza) | Identidad y transición al hero | Carga de la home | No se muestra |
+| Intro de marca: grilla de puntos que se revela, U que se traza con una luz en la punta, pin que cae con anillos concéntricos, logotipo que se contrae desde un tracking amplio, firma y brillo recortado a la silueta, filete como barra de carga, cortina que sube | Home, antes del hero (1 vez por sesión, ~3 s, se saltea con clic o tecla; `?intro=1` la fuerza) | Identidad y transición al hero | Carga de la home | No se muestra |
 | U que se traza, pin que cae y se asienta, logotipo que entra | Barra (1 vez por sesión, si no corrió la intro), cierres y pie (al entrar) | Identidad: la U marca un lugar | Carga / entrada en pantalla | Logo estático |
 | Pin que salta | Logo al pasar el cursor | Confirma que es un enlace | Hover | Sin salto |
 | Recorrido que se dibuja y unidad que avanza | Hero, "Operación en vivo" | Monitor Online: ver la ruta en tiempo real | Visible ≥ 35 % | Ruta completa, 14/14 |
