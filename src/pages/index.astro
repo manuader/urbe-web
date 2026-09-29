@@ -4,6 +4,7 @@ import Icon from '../components/Icon.astro';
 import SectionHead from '../components/SectionHead.astro';
 import HeroOps from '../components/demos/HeroOps.astro';
 import StreetDefs from '../components/demos/StreetDefs.astro';
+import Intro from '../components/Intro.astro';
 import Connect from '../components/demos/Connect.astro';
 import SignalSequence from '../components/demos/SignalSequence.astro';
 import FleetUnit from '../components/demos/FleetUnit.astro';
@@ -24,6 +25,7 @@ const webLd = { '@context': 'https://schema.org', '@type': 'WebSite', '@id': `${
   description="Software, IoT, IA y consultoría para ver cada ruta en tiempo real, actuar sobre lo que requiere atención y certificar cada servicio. Para municipios, prestadores y flotas."
   jsonLd={[webLd]}
 >
+  <Intro slot="before" />
   <StreetDefs />
   <!-- 1 · Qué hace, para quién y su beneficio -->
   <section class="hero sf-estudio" aria-labelledby="hero-t">

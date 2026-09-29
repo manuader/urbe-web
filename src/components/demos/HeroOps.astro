@@ -343,7 +343,9 @@ const conts = g.containers.map((c, i) => ({ ...c, alert: i === alertIdx }));
 
     // Solo corre cuando está a la vista y la pestaña está activa
     let userPaused = false, visible = false;
-    const sync = () => (visible && !userPaused && !document.hidden ? tl.play() : tl.pause());
+    let introReady = document.documentElement.dataset.intro !== 'play';
+    const sync = () => (visible && introReady && !userPaused && !document.hidden ? tl.play() : tl.pause());
+    addEventListener('u:intro-done', () => { introReady = true; sync(); });
     new IntersectionObserver(([e]) => { visible = e.isIntersecting; sync(); }, { threshold: 0.35 }).observe(root);
     document.addEventListener('visibilitychange', sync);
     pp.addEventListener('click', () => {
