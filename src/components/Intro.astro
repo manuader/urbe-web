@@ -47,7 +47,7 @@ svg = svg.replace(
     d.dataset.logo = 'static';
   })();
 </script>
-<div class="intro" aria-hidden="true" data-intro>
+<div class="intro" aria-hidden="true" data-intro-el>
   <div class="intro__grid"></div>
   <div class="intro__glow"></div>
   <div class="intro__rings"><i></i><i></i><i></i></div>
@@ -159,8 +159,17 @@ svg = svg.replace(
 
 <script>
   const d = document.documentElement;
-  const el = document.querySelector<HTMLElement>('[data-intro]');
-  if (el && d.dataset.intro === 'play') {
+  const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  let cancel: (() => void) | null = null;
+
+  // Limpia ?intro=1 de la barra de direcciones
+  if (/[?&]intro=1/.test(location.search)) {
+    const u = new URL(location.href);
+    u.searchParams.delete('intro');
+    history.replaceState(null, '', u.pathname + u.search + u.hash);
+  }
+
+  function run(el: HTMLElement) {
     let finished = false;
     const finish = (skipped: boolean) => {
       if (finished) return;
@@ -169,11 +178,37 @@ svg = svg.replace(
       d.style.overflow = '';
       window.dispatchEvent(new Event('u:intro-done'));
       removeEventListener('keydown', onKey);
+      clearTimeout(timer);
+      cancel = null;
     };
     const onKey = () => finish(true);
     el.addEventListener('click', () => finish(true));
     addEventListener('keydown', onKey);
     el.addEventListener('animationend', (e) => { if (e.animationName === 'it-curtain') finish(false); });
-    setTimeout(() => finish(false), 3600); // resguardo
+    const timer = setTimeout(() => finish(false), 3600); // resguardo
+    cancel = () => finish(true);
   }
+
+  const first = document.querySelector<HTMLElement>('[data-intro-el]');
+  if (first && d.dataset.intro === 'play') run(first);
+
+  /** Vuelve a reproducir la intro en el lugar (clic en el logo desde la home). */
+  function replay() {
+    const el = document.querySelector<HTMLElement>('[data-intro-el]');
+    if (!el || reduce) { scrollTo({ top: 0, behavior: 'instant' }); return; }
+    cancel?.();
+    const fresh = el.cloneNode(true) as HTMLElement; // clonar reinicia todas las animaciones CSS
+    el.replaceWith(fresh);
+    scrollTo({ top: 0, behavior: 'instant' });
+    d.dataset.intro = 'play';
+    // Reinicia la entrada del hero para que vuelva a aparecer detrás de la cortina
+    document.querySelectorAll<HTMLElement>('.hero .in, .hero .rv-line.in > span').forEach((e) => {
+      e.style.animation = 'none';
+      void e.offsetWidth;
+      e.style.animation = '';
+    });
+    window.dispatchEvent(new Event('u:intro-start'));
+    run(fresh);
+  }
+  (window as unknown as { __replayIntro?: () => void }).__replayIntro = replay;
 </script>

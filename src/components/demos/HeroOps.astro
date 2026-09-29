@@ -346,6 +346,7 @@ const conts = g.containers.map((c, i) => ({ ...c, alert: i === alertIdx }));
     let introReady = document.documentElement.dataset.intro !== 'play';
     const sync = () => (visible && introReady && !userPaused && !document.hidden ? tl.play() : tl.pause());
     addEventListener('u:intro-done', () => { introReady = true; sync(); });
+    addEventListener('u:intro-start', () => { introReady = false; tl.pause(); tl.restart(); tl.pause(); });
     new IntersectionObserver(([e]) => { visible = e.isIntersecting; sync(); }, { threshold: 0.35 }).observe(root);
     document.addEventListener('visibilitychange', sync);
     pp.addEventListener('click', () => {

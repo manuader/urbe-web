@@ -28,7 +28,7 @@ El movimiento del sitio tiene una sola función: **explicar cómo funciona Urbet
 
 | Animación | Dónde | Qué explica | Disparador | Movimiento reducido |
 |---|---|---|---|---|
-| Intro de marca: grilla de puntos que se revela, U que se traza con una luz en la punta, pin que cae con anillos concéntricos, logotipo que se contrae desde un tracking amplio, firma y brillo recortado a la silueta, filete como barra de carga, cortina que sube | Home, antes del hero (1 vez por sesión, ~3 s, se saltea con clic o tecla; `?intro=1` la fuerza) | Identidad y transición al hero | Carga de la home | No se muestra |
+| Intro de marca: grilla de puntos que se revela, U que se traza con una luz en la punta, pin que cae con anillos concéntricos, logotipo que se contrae desde un tracking amplio, firma y brillo recortado a la silueta, filete como barra de carga, cortina que sube | Home, antes del hero (1 vez por sesión, ~3 s, se saltea con clic o tecla; `?intro=1` la fuerza; se repite al hacer clic en el logo de la barra o del pie) | Identidad y transición al hero | Carga de la home | No se muestra |
 | U que se traza, pin que cae y se asienta, logotipo que entra | Barra (1 vez por sesión, si no corrió la intro), cierres y pie (al entrar) | Identidad: la U marca un lugar | Carga / entrada en pantalla | Logo estático |
 | Pin que salta | Logo al pasar el cursor | Confirma que es un enlace | Hover | Sin salto |
 | Recorrido que se dibuja y unidad que avanza | Hero, "Operación en vivo" | Monitor Online: ver la ruta en tiempo real | Visible ≥ 35 % | Ruta completa, 14/14 |

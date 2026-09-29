@@ -244,6 +244,17 @@ const megas = { soluciones: solutionGroups, sectores: sectorGroups };
   });
   document.addEventListener('click', (e) => { if (!nav.contains(e.target as Node)) setOpen(null); });
 
+  // Logo: vuelve a reproducir la intro de marca (en la home, en el lugar; desde otras páginas, al llegar)
+  document.querySelectorAll<HTMLAnchorElement>('a.nav__logo, a.foot__logo').forEach((a) => {
+    a.addEventListener('click', (e) => {
+      if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey || e.button !== 0) return;
+      e.preventDefault();
+      const replay = (window as unknown as { __replayIntro?: () => void }).__replayIntro;
+      if (location.pathname === '/' && replay) replay();
+      else location.href = '/?intro=1';
+    });
+  });
+
   // Menú móvil
   const burger = nav.querySelector<HTMLButtonElement>('.nav__burger')!;
   const menu = document.getElementById('menu')!;
